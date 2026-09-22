@@ -435,7 +435,7 @@ export class GameEngine {
 
           if (usedBonus) {
             // Win from bonus-funded game → credit bonusBalance (no wagering).
-            // Bonus is withdrawable once the player has a lifetime deposit >= 100 ETB.
+            // Bonus is withdrawable once the player has a lifetime deposit >= 50 ETB.
             const [updated] = await db.update(playersTable)
               .set({ bonusBalance: sql`${playersTable.bonusBalance} + ${prize}` })
               .where(eq(playersTable.telegramId, telegramId))

@@ -30,14 +30,14 @@ router.get("/player/wallet", async (req: Request, res: Response) => {
 
     const player = players[0]!;
 
-    // Bonus balance becomes withdrawable once the player has a lifetime deposit >= 100 ETB.
+    // Bonus balance becomes withdrawable once the player has a lifetime deposit >= 50 ETB.
     const qualifyingDeposit = await db
       .select({ id: pendingDepositsTable.id })
       .from(pendingDepositsTable)
       .where(and(
         eq(pendingDepositsTable.telegramId, telegramId),
         eq(pendingDepositsTable.status, "approved"),
-        sql`${pendingDepositsTable.amount}::numeric >= 100`
+        sql`${pendingDepositsTable.amount}::numeric >= 50`
       ))
       .limit(1);
     const bonusWithdrawable = qualifyingDeposit.length > 0;
