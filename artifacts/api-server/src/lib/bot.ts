@@ -498,7 +498,7 @@ bot.callbackQuery(/^cmd_withdraw_(\d+)$/, async (ctx) => {
       return;
     }
 
-    // Bonus balance becomes withdrawable only with a lifetime deposit >= 100 ETB.
+    // Bonus balance becomes withdrawable only with a lifetime deposit >= 50 ETB.
     const bonusEligible = await hasLifetimeDeposit(userId, BONUS_WITHDRAW_MIN_DEPOSIT);
     const withdrawable = mainBalance + (bonusEligible ? bonusBalance : 0);
 
@@ -1005,7 +1005,7 @@ bot.command("withdraw", async (ctx) => {
       return;
     }
 
-    // Bonus balance becomes withdrawable only with a lifetime deposit >= 100 ETB.
+    // Bonus balance becomes withdrawable only with a lifetime deposit >= 50 ETB.
     const bonusEligible = await hasLifetimeDeposit(user.id, BONUS_WITHDRAW_MIN_DEPOSIT);
     const withdrawable = mainBalance + (bonusEligible ? bonusBalance : 0);
 
@@ -2005,7 +2005,7 @@ bot.callbackQuery(/^lbox_(\d+)_(\d+)$/, async (ctx) => {
 // Minimum general lifetime deposit required for any withdrawal.
 const WITHDRAW_MIN_DEPOSIT = 50;
 // Minimum lifetime deposit required to make the bonus balance withdrawable.
-const BONUS_WITHDRAW_MIN_DEPOSIT = 100;
+const BONUS_WITHDRAW_MIN_DEPOSIT = 50;
 
 // Returns true if the player has at least one approved deposit >= minAmount (lifetime).
 async function hasLifetimeDeposit(telegramId: number, minAmount: number): Promise<boolean> {
@@ -2052,7 +2052,7 @@ async function handleWithdrawRequest(
       return;
     }
     // Re-check wagering and deduct mainBalance atomically in a transaction
-    // Bonus balance becomes withdrawable only with a lifetime deposit >= 100 ETB.
+    // Bonus balance becomes withdrawable only with a lifetime deposit >= 50 ETB.
     const bonusEligible = await hasLifetimeDeposit(telegramId, BONUS_WITHDRAW_MIN_DEPOSIT);
 
     const txResult = await db.transaction(async (tx) => {

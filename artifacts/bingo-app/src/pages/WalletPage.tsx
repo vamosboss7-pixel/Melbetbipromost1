@@ -89,7 +89,7 @@ export default function WalletPage() {
           </div>
         </div>
 
-        {/* Bonus Balance — withdrawable only after a lifetime deposit >= 100 ETB */}
+        {/* Bonus Balance — withdrawable only after a lifetime deposit >= 50 ETB */}
         <div
           className="game-card"
           style={{ padding: '20px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}
@@ -104,7 +104,7 @@ export default function WalletPage() {
                   ቦነስ ባላንስ
                 </div>
                 <div style={{ fontSize: 11, color: bonusWithdrawable ? '#22c55e' : '#e05c00' }}>
-                  {bonusWithdrawable ? 'ማውጣት ይቻላል' : 'ማውጣት አይቻልም · 100 ብር ዲፖዚት ያስፈልጋል'}
+                  {bonusWithdrawable ? 'ማውጣት ይቻላል' : 'ማውጣት አይቻልም · 50 ብር ዲፖዚት ያስፈልጋል'}
                 </div>
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function WalletPage() {
           {!bonusWithdrawable && bonusBal > 0 && (
             <div style={{ paddingTop: 4 }}>
               <p style={{ fontSize: 10, color: '#aaa', lineHeight: 1.6, margin: 0 }}>
-                ⓘ ቦነስ ባላንስ ለማውጣት በላይፍታይም ቢያንስ አንድ ጊዜ <b style={{ color: '#E91E8C' }}>100 ብር</b> ዲፖዚት ማድረግ ያስፈልጋል።
+                ⓘ ቦነስ ባላንስ ለማውጣት በላይፍታይም ቢያንስ አንድ ጊዜ <b style={{ color: '#E91E8C' }}>50 ብር</b> ዲፖዚት ማድረግ ያስፈልጋል።
               </p>
             </div>
           )}
