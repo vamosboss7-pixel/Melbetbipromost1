@@ -295,12 +295,18 @@ export default function SlotSelectionPage() {
             </span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: selectedSlots.length === 1 ? '1fr' : '1fr 1fr', gap: 10, marginBottom: 10 }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: selectedSlots.length === 1 ? '1fr' : 'repeat(2, minmax(0, 1fr))',
+            justifyItems: 'center',
+            gap: 8,
+            marginBottom: 6,
+          }}>
             {selectedSlots.map((cardNum, i) => {
               const card = CARTELAS[cardNum - 1]
               const COLS = ['B','I','N','G','O']
               return (
-                <div key={cardNum} className="cartela-placeholder" style={{ padding: '8px 6px', minHeight: 100 }}>
+                <div key={cardNum} className="cartela-placeholder" style={{ width: '100%', maxWidth: 150, padding: '6px 5px', minHeight: 0 }}>
                   <div style={{ width: '100%' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                       <span style={{ fontSize: 9, fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>SLOT #{i + 1}</span>
