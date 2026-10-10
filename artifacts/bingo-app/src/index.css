@@ -193,6 +193,127 @@ body {
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
 }
 
+.game-bg { background: #090a08; }
+
+.selection-page,
+.game-page {
+  color: #f5f4f0;
+  background: #090a08;
+  font-family: 'Oswald', sans-serif;
+}
+
+.selection-header { flex: 0 0 auto; padding: 9px 12px 8px; background: #1c2733; }
+.selection-titlebar { display: flex; align-items: center; gap: 12px; height: 58px; padding: 0 4px 7px; }
+.selection-titlebar h1 { flex: 1; font-size: 21px; line-height: 1; font-weight: 700; letter-spacing: .01em; }
+.selection-back, .selection-menu, .game-back, .game-menu {
+  border: 0;
+  color: white;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.selection-back { width: 40px; height: 40px; border: 1px solid #604412; border-radius: 10px; color: #ffc21c; font-size: 27px; line-height: 1; }
+.selection-menu { width: 30px; font-size: 28px; line-height: 1; }
+.connection-dot { width: 8px; height: 8px; border-radius: 50%; background: #777; flex: 0 0 auto; }
+.connection-dot.connected { background: #ffc21c; box-shadow: 0 0 8px #ffc21c; }
+.selection-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.game-stat-chip { min-width: 0; min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px 3px; background: #11120f; border: 1px solid #4c3511; border-radius: 11px; box-shadow: inset 0 0 0 1px rgba(255, 188, 24, .08), 0 2px 4px #070807; text-align: center; }
+.game-stat-chip span { overflow: hidden; max-width: 100%; color: #999da3; font-size: 11px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; }
+.game-stat-chip strong { color: #f5f4f0; font-size: 14px; line-height: 1.3; white-space: nowrap; }
+.game-stat-chip strong.accent { color: #ffc21c; }
+.stake-panel { display: grid; grid-template-columns: 51px minmax(92px, 1fr) auto; align-items: center; gap: 5px; margin: 8px 4px 0; padding: 7px 8px; border: 1px solid #583311; border-radius: 14px; background: #17140d; }
+.stake-panel > strong { font-size: 14px; }
+.stake-adjust { height: 39px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #613411; border-radius: 9px; background: #0d0d0a; }
+.stake-adjust button { width: 29px; height: 31px; margin: 3px; border: 1px solid #39260c; border-radius: 6px; color: #987126; background: #141109; font-size: 18px; }
+.stake-adjust button:disabled, .stake-options button:disabled { opacity: 1; }
+.stake-adjust > span { font-size: 15px; font-weight: 700; white-space: nowrap; }
+.stake-adjust small { color: #aaa; font-size: 9px; font-weight: 500; }
+.stake-options { display: flex; gap: 3px; }
+.stake-options button { min-width: 25px; height: 30px; padding: 0 4px; border: 1px solid #582b11; border-radius: 7px; color: #eee; background: #0d0d0a; font-size: 11px; font-weight: 700; }
+.stake-options button.selected { border-color: #ffe05b; color: #14110a; background: #ffc21c; box-shadow: 0 0 8px rgba(255, 194, 28, .25); }
+.selection-win-rule, .game-win-rule { color: #ffd32a; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: .025em; }
+.selection-win-rule { flex: 0 0 auto; padding: 7px 4px 6px; }
+.selection-grid-scroll { min-height: 0; }
+.selection-page .slot-cell { color: #d4d4d4; background: #14130f; border: 1px solid #31200f; border-radius: 50%; font-size: 12px; }
+.selection-page .slot-cell.selected { color: #fff; background: #f04400; border-color: #ff8a00; box-shadow: 0 0 7px rgba(255, 107, 0, .25); }
+.selection-page .slot-cell.taken { color: #3e3c38; background: #0d0d0a; }
+.selection-page .cartela-placeholder { border: 1px solid #b98310; border-radius: 10px; background: #11110d; box-shadow: 0 0 6px rgba(244, 176, 21, .12); }
+.selection-page .cartela-placeholder:has(+ *) { cursor: pointer; }
+.selection-page .game-stat-chip { min-height: 56px; }
+
+.game-page { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
+.game-topbar { min-height: 58px; display: flex; align-items: center; gap: 12px; padding: 0 15px; background: #1c2733; flex: 0 0 auto; }
+.game-topbar h1 { flex: 1; font-size: 21px; line-height: 1; }
+.game-back { width: 30px; font-size: 30px; line-height: 1; }
+.game-menu { width: 26px; font-size: 28px; line-height: 1; }
+.game-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 8px 12px; flex: 0 0 auto; }
+.game-win-rule { padding: 0 8px 8px; flex: 0 0 auto; }
+.game-draw-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 8px 8px; flex: 0 0 auto; }
+.latest-ball-card { display: flex; align-items: center; gap: 7px; min-width: 0; min-height: 80px; padding: 8px; border: 1px solid #3264ac; border-radius: 14px; background: #101116; box-shadow: inset 0 0 0 1px rgba(39, 115, 245, .13); }
+.latest-ball { width: 55px; height: 55px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 3px solid #f1f3f7; border-radius: 50%; color: #fff; background: #1769ff; box-shadow: 0 0 14px rgba(23, 105, 255, .55); flex: 0 0 auto; }
+.latest-ball span { font-size: 10px; line-height: 1; }
+.latest-ball strong { font-size: 20px; line-height: 1.05; }
+.latest-ball:not(.has-ball) { font-size: 19px; }
+.recent-balls { min-width: 0; display: flex; gap: 4px; }
+.recent-balls span { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid #24231f; border-radius: 50%; color: #494741; background: #0b0b09; font-size: 14px; }
+.draw-options { display: grid; grid-template-columns: 1fr auto; grid-template-rows: 1fr 35px; align-items: center; gap: 5px 7px; padding: 7px 8px; border-radius: 14px; background: #17140d; }
+.auto-toggle { display: flex; align-items: center; justify-content: flex-end; gap: 9px; border: 0; color: #ffc21c; background: transparent; font: 700 11px 'Oswald', sans-serif; }
+.auto-toggle i { width: 39px; height: 22px; border: 2px solid #6a4b0c; border-radius: 20px; background: #222; position: relative; }
+.auto-toggle i::after { content: ''; position: absolute; top: 1px; left: 1px; width: 16px; height: 16px; border-radius: 50%; background: #888; transition: transform .18s ease; }
+.auto-toggle.active i { background: #ffbb00; border-color: #d39400; }
+.auto-toggle.active i::after { transform: translateX(17px); background: #17140d; }
+.sound-toggle { width: 25px; border: 0; color: #afb2ba; background: transparent; font-size: 16px; }
+.bingo-legend { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.bingo-legend span, .bingo-letters span, .player-card-letters span { display: grid; place-items: center; border-radius: 7px; color: #fff; font-weight: 900; }
+.bingo-legend span { height: 28px; font-size: 15px; }
+.game-content { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr); gap: 9px; padding: 0 8px 8px; }
+.called-board { min-height: 0; overflow-y: auto; padding: 8px; border: 1px solid #4e2b10; border-radius: 16px; background: #11110d; }
+.bingo-letters { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; margin-bottom: 6px; }
+.bingo-letters span { height: 27px; font-size: 15px; }
+.called-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(15, minmax(22px, 1fr)); gap: 4px; }
+.called-ball { display: grid; place-items: center; min-width: 0; min-height: 22px; border: 1px solid #22180f; border-radius: 50%; color: #514b42; background: #0b0b09; font-size: clamp(9px, 3vw, 12px); font-weight: 700; }
+.called-ball.called { color: #fff; border-color: #ff8a00; background: #f04400; box-shadow: inset 0 0 0 1px rgba(255, 181, 51, .2); }
+.called-ball.latest { color: #1d1708; border: 3px solid #fff7cb; background: #ffd12b; box-shadow: 0 0 12px rgba(255, 201, 30, .6); }
+.player-cards { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.player-card { flex: 0 0 auto; padding: 8px; border: 1px solid #b98310; border-radius: 13px; background: #11110d; box-shadow: 0 0 8px rgba(255, 186, 32, .12); }
+.player-card-title { margin-bottom: 5px; color: #ddd; text-align: center; font-size: 13px; }
+.player-card-title strong { color: #ffc21c; }
+.player-card-letters { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-bottom: 4px; }
+.player-card-letters span { height: 23px; border-radius: 8px; font-size: 12px; }
+.player-card-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px; }
+.player-card-cell { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 0; padding: 0; border: 1px solid #4d3217; border-radius: 6px; color: #f0eee9; background: #30291c; font: 700 clamp(11px, 3.5vw, 16px) 'Oswald', sans-serif; cursor: pointer; }
+.player-card-cell.marked { color: #17130b; border-color: #ffd34b; background: #ffc21c; }
+.player-card-cell.free { color: #17130b; border: 2px solid #fff1b0; background: #ffc21c; font-size: 9px; line-height: 1; }
+.player-card-cell.free span { font-size: 15px; }
+.empty-cards { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border: 1px solid #4e2b10; border-radius: 14px; color: #aaa; background: #11110d; }
+.empty-cards button { padding: 8px 12px; border: 0; border-radius: 8px; color: #17130b; background: #ffc21c; font-weight: 700; }
+.winner-overlay { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: white; background: rgba(0,0,0,.88); }
+.winner-trophy { font-size: 52px; }
+.winner-overlay strong { color: #ffc21c; font-size: 28px; }
+.winner-overlay small { color: #aaa; }
+
+@media (max-width: 380px) {
+  .selection-stats, .game-stats { gap: 4px; }
+  .game-stat-chip span { font-size: 10px; }
+  .stake-panel { grid-template-columns: 46px minmax(90px, 1fr) auto; gap: 4px; padding: 6px; }
+  .stake-panel > strong { font-size: 12px; }
+  .stake-options button { min-width: 23px; padding: 0 2px; font-size: 10px; }
+  .game-content { gap: 6px; padding-inline: 5px; }
+  .called-board { padding: 5px; }
+  .player-card { padding: 6px; }
+  .player-card-cell { border-radius: 5px; }
+  .recent-balls span { width: 25px; height: 25px; }
+}
+
+@media (max-height: 760px) {
+  .game-topbar { min-height: 50px; }
+  .game-draw-controls { padding-bottom: 5px; }
+  .latest-ball-card { min-height: 68px; }
+  .latest-ball { width: 48px; height: 48px; }
+  .called-letters span { height: 23px; }
+  .player-card { padding: 5px; }
+}
+
 /* Pulse dot */
 .pulse-dot {
   animation: pulse 1.5s ease-in-out infinite;

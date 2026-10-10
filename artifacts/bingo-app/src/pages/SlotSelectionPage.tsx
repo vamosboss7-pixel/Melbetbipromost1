@@ -164,17 +164,13 @@ export default function SlotSelectionPage() {
 
   const numbers = Array.from({ length: 500 }, (_, i) => i + 1)
 
-  const displayName = player
-    ? (player.username ? `@${player.username}` : player.firstName)
-    : '...'
-
   const totalBalance = (player || livePlayBalance !== null) ? totalBalanceNum.toFixed(2) : '—'
 
   // Show a dimmed overlay when game is in progress and this player has no cards
   const waitingForNextRound = gamePhase === 'playing' && selectedSlots.length === 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'radial-gradient(ellipse at 50% 30%, #06452a 0%, #031b14 70%)', position: 'relative' }}>
+    <div className="selection-page" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', position: 'relative' }}>
 
       {/* Insufficient Balance Modal */}
       {showNoBalance && (
@@ -185,7 +181,7 @@ export default function SlotSelectionPage() {
           padding: '0 24px',
         }}>
           <div style={{
-            background: 'linear-gradient(145deg, #05251a, #2d1212)',
+            background: 'linear-gradient(145deg, #1a170f, #2d160d)',
             border: '1.5px solid #b8860b',
             borderRadius: 20,
             padding: '32px 24px 24px',
@@ -196,7 +192,7 @@ export default function SlotSelectionPage() {
           }}>
             <div style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #00ff8c, #00c96b)',
+              background: 'linear-gradient(135deg, #ffb800, #f04400)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 20px',
               fontSize: 28,
@@ -221,7 +217,7 @@ export default function SlotSelectionPage() {
               style={{
                 width: '100%', padding: '13px 0',
                 borderRadius: 50, border: 'none', cursor: 'pointer',
-                background: 'linear-gradient(to right, #00ff8c, #b7ff00)',
+                background: 'linear-gradient(to right, #ffb800, #ff8300)',
                 fontSize: 15, fontWeight: 800, color: '#fff',
                 letterSpacing: '0.08em',
               }}
@@ -250,71 +246,36 @@ export default function SlotSelectionPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ background: '#05251a', borderBottom: '1px solid #08734a', padding: '10px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Back button + User info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {gamePhase === 'waiting' && (
-              <button
-                onClick={() => navigate('/')}
-                style={{
-                  background: 'none', border: '1.5px solid #08734a', borderRadius: 8,
-                  color: '#aaa', cursor: 'pointer', padding: '5px 8px',
-                  fontSize: 15, lineHeight: 1, flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-                title="ወደ ሎቢ ተመ��ስ"
-              >
-                ←
-              </button>
-            )}
-            <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #00ff8c, #b7ff00)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, fontWeight: 700, color: '#fff', flexShrink: 0,
-              border: '2px solid #d4a017'
-            }}>
-              🪙
-            </div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#D4A017', letterSpacing: '0.04em' }}>{displayName}</div>
-              <div style={{ fontSize: 10, color: '#999', letterSpacing: '0.02em' }}>MELBIT BINGO</div>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: 'flex', gap: 6 }}>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>
-                {gamePhase === 'playing' ? 'NEXT ROUND' : 'CLOSES IN'}
-              </span>
-              <span style={{
-                fontSize: 13, fontWeight: 700, fontFamily: 'monospace',
-                color: gamePhase === 'playing' ? '#888' : serverCountdown <= 5 ? '#ff4444' : '#39ff88',
-              }}>
-                {gamePhase === 'playing' ? '—' : formatTime(serverCountdown)}
-              </span>
-            </div>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>🎴 CARDS</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{totalCards}</span>
-            </div>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>🏆 ደራሽ</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#D4A017' }}>{netPrizePool.toFixed(0)} ETB</span>
-            </div>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>💰 ETB</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#D4A017' }}>{totalBalance}</span>
-            </div>
-          </div>
+      <header className="selection-header">
+        <div className="selection-titlebar">
+          <button className="selection-back" onClick={() => navigate('/')} aria-label="Back to lobby">←</button>
+          <h1>Yes Bingo</h1>
+          <span className={`connection-dot${socketRef.current?.connected ? ' connected' : ''}`} />
+          <button className="selection-menu" aria-label="More options">⋮</button>
         </div>
-      </div>
+        <div className="selection-stats">
+          <StatChip label="Players" value={String(totalCards)} />
+          <StatChip label="Stake" value={`${stakePerCard} ETB`} />
+          <StatChip label="Wallet" value={`${totalBalance} ETB`} />
+          <StatChip label="Timer" value={gamePhase === 'playing' ? '—' : formatTime(serverCountdown)} accent={serverCountdown <= 5 && gamePhase === 'waiting'} />
+        </div>
+      </header>
+
+      <section className="stake-panel">
+        <strong>STAKE</strong>
+        <div className="stake-adjust" aria-label="Current room stake">
+          <button disabled aria-label="Stake is configured for this room">−</button>
+          <span>{stakePerCard} <small>ETB</small></span>
+          <button disabled aria-label="Stake is configured for this room">+</button>
+        </div>
+        <div className="stake-options">
+          {[10, 20, 30, 40].map(amount => <button key={amount} className={amount === stakePerCard ? 'selected' : ''} disabled title="Stake is set by the game room">{amount}</button>)}
+        </div>
+      </section>
+      <div className="selection-win-rule">THE GAME IS WON WITH TWO LINES!</div>
 
       {/* Scrollable grid only */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 12px 8px' }}>
+      <div className="selection-grid-scroll" style={{ flex: 1, overflowY: 'auto', padding: '12px 12px 8px' }}>
 
         {/* Grand Slots label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
@@ -337,11 +298,10 @@ export default function SlotSelectionPage() {
             return (
               <div
                 key={n}
-                className={`slot-cell${isTaken ? ' highlighted' : ''}${isSelected ? ' highlighted' : ''}`}
+                className={`slot-cell${isSelected ? ' selected' : ''}${isTaken ? ' taken' : ''}`}
                 onClick={() => toggleSlot(n)}
                 style={{
-                  ...(isSelected ? { background: '#06452a', boxShadow: '0 0 8px rgba(255,140,0,0.5)' } : {}),
-                  ...(isTaken ? { cursor: 'not-allowed', opacity: 0.5 } : {}),
+                  ...(isTaken ? { cursor: 'not-allowed', opacity: 0.35 } : {}),
                 }}
               >
                 {n}
@@ -354,8 +314,8 @@ export default function SlotSelectionPage() {
       {/* MY CARTELAS — fixed, never scrolls */}
       <div style={{
         flexShrink: 0,
-        background: '#031b14',
-        borderTop: '1px solid #3a1212',
+        background: '#090a08',
+        borderTop: '1px solid #3a2410',
         padding: '10px 12px 0',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -411,8 +371,8 @@ export default function SlotSelectionPage() {
                           aspectRatio: '1',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           borderRadius: 3,
-                          background: num === 0 ? 'linear-gradient(135deg,#00ff8c,#b7ff00)' : '#05251a',
-                          border: num === 0 ? 'none' : '1px solid #3a1212',
+                          background: num === 0 ? 'linear-gradient(135deg,#ffd43b,#ff9f00)' : '#15140f',
+                          border: num === 0 ? 'none' : '1px solid #4b2b12',
                           fontSize: num === 0 ? 10 : 8,
                           fontWeight: 700,
                           color: num === 0 ? '#fff' : '#ccc',
@@ -460,7 +420,7 @@ export default function SlotSelectionPage() {
               flex: 1, padding: '11px 0',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               border: 'none', cursor: 'pointer', borderRadius: 50,
-              background: 'linear-gradient(to right, #00ff8c, #b7ff00)',
+              background: 'linear-gradient(to right, #ffb800, #ff8300)',
             }}
           >
             <span style={{ fontSize: 13 }}>🎲</span>
@@ -471,4 +431,8 @@ export default function SlotSelectionPage() {
       </div>
     </div>
   )
+}
+
+function StatChip({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  return <div className="game-stat-chip"><span>{label}</span><strong className={accent ? 'accent' : ''}>{value}</strong></div>
 }
