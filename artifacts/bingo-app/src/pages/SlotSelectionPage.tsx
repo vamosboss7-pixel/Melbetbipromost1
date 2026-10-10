@@ -306,7 +306,7 @@ export default function SlotSelectionPage() {
               const card = CARTELAS[cardNum - 1]
               const COLS = ['B','I','N','G','O']
               return (
-                <div key={cardNum} className="cartela-placeholder" style={{ width: '100%', maxWidth: 50, padding: '6px 5px', minHeight: 0 }}>
+                <div key={cardNum} className="cartela-placeholder" style={{ width: '100%', maxWidth: 75, padding: '6px 5px', minHeight: 0 }}>
                   <div style={{ width: '100%' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                       <span style={{ fontSize: 9, fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>SLOT #{i + 1}</span>
