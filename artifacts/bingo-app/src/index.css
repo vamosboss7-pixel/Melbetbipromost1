@@ -221,16 +221,6 @@ body {
 .game-stat-chip span { overflow: hidden; max-width: 100%; color: #999da3; font-size: 11px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis; }
 .game-stat-chip strong { color: #f5f4f0; font-size: 14px; line-height: 1.3; white-space: nowrap; }
 .game-stat-chip strong.accent { color: #ffc21c; }
-.stake-panel { display: grid; grid-template-columns: 51px minmax(92px, 1fr) auto; align-items: center; gap: 5px; margin: 8px 4px 0; padding: 7px 8px; border: 1px solid #583311; border-radius: 14px; background: #17140d; }
-.stake-panel > strong { font-size: 14px; }
-.stake-adjust { height: 39px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #613411; border-radius: 9px; background: #0d0d0a; }
-.stake-adjust button { width: 29px; height: 31px; margin: 3px; border: 1px solid #39260c; border-radius: 6px; color: #987126; background: #141109; font-size: 18px; }
-.stake-adjust button:disabled, .stake-options button:disabled { opacity: 1; }
-.stake-adjust > span { font-size: 15px; font-weight: 700; white-space: nowrap; }
-.stake-adjust small { color: #aaa; font-size: 9px; font-weight: 500; }
-.stake-options { display: flex; gap: 3px; }
-.stake-options button { min-width: 25px; height: 30px; padding: 0 4px; border: 1px solid #582b11; border-radius: 7px; color: #eee; background: #0d0d0a; font-size: 11px; font-weight: 700; }
-.stake-options button.selected { border-color: #ffe05b; color: #14110a; background: #ffc21c; box-shadow: 0 0 8px rgba(255, 194, 28, .25); }
 .selection-win-rule, .game-win-rule { color: #ffd32a; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: .025em; }
 .selection-win-rule { flex: 0 0 auto; padding: 7px 4px 6px; }
 .selection-grid-scroll { min-height: 0; }
@@ -295,9 +285,6 @@ body {
 @media (max-width: 380px) {
   .selection-stats, .game-stats { gap: 4px; }
   .game-stat-chip span { font-size: 10px; }
-  .stake-panel { grid-template-columns: 46px minmax(90px, 1fr) auto; gap: 4px; padding: 6px; }
-  .stake-panel > strong { font-size: 12px; }
-  .stake-options button { min-width: 23px; padding: 0 2px; font-size: 10px; }
   .game-content { gap: 6px; padding-inline: 5px; }
   .called-board { padding: 5px; }
   .player-card { padding: 6px; }

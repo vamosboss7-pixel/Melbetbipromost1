@@ -238,17 +238,6 @@ export default function SlotSelectionPage() {
         </div>
       </header>
 
-      <section className="stake-panel">
-        <strong>STAKE</strong>
-        <div className="stake-adjust" aria-label="Current room stake">
-          <button disabled aria-label="Stake is configured for this room">−</button>
-          <span>{stakePerCard} <small>ETB</small></span>
-          <button disabled aria-label="Stake is configured for this room">+</button>
-        </div>
-        <div className="stake-options">
-          {[10, 20, 30, 40].map(amount => <button key={amount} className={amount === stakePerCard ? 'selected' : ''} disabled title="Stake is set by the game room">{amount}</button>)}
-        </div>
-      </section>
       <div className="selection-win-rule">THE GAME IS WON WITH TWO LINES!</div>
 
       {/* Scrollable grid only */}
