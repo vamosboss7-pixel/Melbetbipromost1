@@ -27,8 +27,9 @@ export default function SlotSelectionPage() {
   const [serverCountdown, setServerCountdown] = useState<number>(30)
   const [gamePhase, setGamePhase] = useState<GameState['phase']>('waiting')
   const [totalCards, setTotalCards] = useState<number>(0)
-  const [netPrizePool, setNetPrizePool] = useState<number>(0)
+  const [playerCount, setPlayerCount] = useState<number>(0)
   const [takenCards, setTakenCards] = useState<Set<number>>(new Set())
+  const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const playerRef = useRef(player)
   const selectedSlotsRef = useRef(selectedSlots)
@@ -55,13 +56,14 @@ export default function SlotSelectionPage() {
       if (p) socket.emit('join_room', { telegramId: p.telegramId, firstName: p.firstName })
     }
 
-    socket.on('connect', emitJoin)
+    socket.on('connect', () => { setConnected(true); emitJoin() })
+    socket.on('disconnect', () => setConnected(false))
 
     socket.on('game_state', (state: GameState & { jackpotPool?: number }) => {
       setServerCountdown(state.countdown)
       setGamePhase(state.phase)
       setTotalCards(state.playersWithCards ?? 0)
-      setNetPrizePool(state.netPrizePool ?? 0)
+      setPlayerCount(state.playerCount ?? 0)
       if (state.jackpotPool != null) setJackpotPool(Number(state.jackpotPool).toFixed(2))
     })
 
@@ -250,11 +252,11 @@ export default function SlotSelectionPage() {
         <div className="selection-titlebar">
           <button className="selection-back" onClick={() => navigate('/')} aria-label="Back to lobby">←</button>
           <h1>Yes Bingo</h1>
-          <span className={`connection-dot${socketRef.current?.connected ? ' connected' : ''}`} />
+          <span className={`connection-dot${connected ? ' connected' : ''}`} />
           <button className="selection-menu" aria-label="More options">⋮</button>
         </div>
         <div className="selection-stats">
-          <StatChip label="Players" value={String(totalCards)} />
+          <StatChip label="Players" value={String(playerCount)} />
           <StatChip label="Stake" value={`${stakePerCard} ETB`} />
           <StatChip label="Wallet" value={`${totalBalance} ETB`} />
           <StatChip label="Timer" value={gamePhase === 'playing' ? '—' : formatTime(serverCountdown)} accent={serverCountdown <= 5 && gamePhase === 'waiting'} />
@@ -296,16 +298,19 @@ export default function SlotSelectionPage() {
             const isTaken = takenCards.has(n) && !selectedSlots.includes(n)
             const isSelected = selectedSlots.includes(n)
             return (
-              <div
+              <button
+                type="button"
                 key={n}
                 className={`slot-cell${isSelected ? ' selected' : ''}${isTaken ? ' taken' : ''}`}
+                disabled={isTaken}
+                aria-pressed={isSelected}
                 onClick={() => toggleSlot(n)}
                 style={{
                   ...(isTaken ? { cursor: 'not-allowed', opacity: 0.35 } : {}),
                 }}
               >
                 {n}
-              </div>
+              </button>
             )
           })}
         </div>

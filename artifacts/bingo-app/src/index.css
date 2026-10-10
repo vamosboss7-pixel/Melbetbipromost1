@@ -234,11 +234,11 @@ body {
 .selection-win-rule, .game-win-rule { color: #ffd32a; text-align: center; font-size: 14px; font-weight: 800; letter-spacing: .025em; }
 .selection-win-rule { flex: 0 0 auto; padding: 7px 4px 6px; }
 .selection-grid-scroll { min-height: 0; }
-.selection-page .slot-cell { color: #d4d4d4; background: #14130f; border: 1px solid #31200f; border-radius: 50%; font-size: 12px; }
+.selection-page .slot-cell { appearance: none; padding: 0; color: #d4d4d4; background: #14130f; border: 1px solid #31200f; border-radius: 50%; font: 600 12px 'Oswald', sans-serif; cursor: pointer; }
 .selection-page .slot-cell.selected { color: #fff; background: #f04400; border-color: #ff8a00; box-shadow: 0 0 7px rgba(255, 107, 0, .25); }
 .selection-page .slot-cell.taken { color: #3e3c38; background: #0d0d0a; }
 .selection-page .cartela-placeholder { border: 1px solid #b98310; border-radius: 10px; background: #11110d; box-shadow: 0 0 6px rgba(244, 176, 21, .12); }
-.selection-page .cartela-placeholder:has(+ *) { cursor: pointer; }
+.selection-page .cartela-placeholder { cursor: pointer; }
 .selection-page .game-stat-chip { min-height: 56px; }
 
 .game-page { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
@@ -305,12 +305,16 @@ body {
   .recent-balls span { width: 25px; height: 25px; }
 }
 
+::-webkit-scrollbar-track { background: #11110d; }
+.selection-page ::-webkit-scrollbar-thumb,
+.game-page ::-webkit-scrollbar-thumb { background: #d9900b; border-radius: 4px; }
+
 @media (max-height: 760px) {
   .game-topbar { min-height: 50px; }
   .game-draw-controls { padding-bottom: 5px; }
   .latest-ball-card { min-height: 68px; }
   .latest-ball { width: 48px; height: 48px; }
-  .called-letters span { height: 23px; }
+  .bingo-letters span { height: 23px; }
   .player-card { padding: 5px; }
 }
 

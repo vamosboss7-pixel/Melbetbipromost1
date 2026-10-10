@@ -20,15 +20,9 @@ function getBallCol(n: number): string {
   return 'B'
 }
 
-function formatCountdown(s: number) {
-  const m = Math.floor(s / 60)
-  const sec = s % 60
-  return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}s`
-}
-
 export default function GamePage() {
   const [, navigate] = useLocation()
-  const { bgMusicEnabled, ballSoundEnabled, setBgMusic } = useSoundSettings()
+  const { bgMusicEnabled, ballSoundEnabled, setBgMusic, setBallSound } = useSoundSettings()
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const ballAudioRef = useRef<HTMLAudioElement | null>(null)
   const [stakePerCard, setStakePerCard] = useState(0)
@@ -46,10 +40,6 @@ export default function GamePage() {
   const { connected, gameState, winner } = useGame(selectedSlots, identity)
   const calledSet = new Set(gameState.calledBalls)
   const latestBall = gameState.currentBall
-  const balance = player
-    ? Number(player.depositBalance ?? 0) + Number(player.mainBalance) + Number(player.bonusBalance)
-    : null
-
   useEffect(() => {
     fetch('/api/game/rooms')
       .then(r => r.json())
@@ -130,7 +120,7 @@ export default function GamePage() {
           </div>
           <div className="recent-balls">
             {(gameState.calledBalls.slice(-4).reverse().slice(1)).length
-              ? gameState.calledBalls.slice(-4).reverse().slice(1).map(n => <span key={n}>—</span>)
+              ? gameState.calledBalls.slice(-4).reverse().slice(1).map(n => <span key={n}>{n}</span>)
               : <><span>—</span><span>—</span><span>—</span></>}
           </div>
         </div>
@@ -138,8 +128,8 @@ export default function GamePage() {
           <button className={`auto-toggle${autoMark ? ' active' : ''}`} onClick={() => setAutoMark(value => !value)} aria-pressed={autoMark}>
             <span>AUTO</span><i />
           </button>
-          <button className="sound-toggle" onClick={() => setBgMusic(!bgMusicEnabled)} aria-label={bgMusicEnabled ? 'Mute music' : 'Enable music'}>
-            {bgMusicEnabled ? '◖)' : '◖×'}
+          <button className="sound-toggle" onClick={() => { const enabled = bgMusicEnabled || ballSoundEnabled; setBgMusic(!enabled); setBallSound(!enabled) }} aria-label={bgMusicEnabled || ballSoundEnabled ? 'Mute sound' : 'Enable sound'}>
+            {bgMusicEnabled || ballSoundEnabled ? '◖)' : '◖×'}
           </button>
           <div className="bingo-legend">
             {BINGO_COLS.map(col => <span key={col} style={{ background: COL_BADGE_COLORS[col] }}>{col}</span>)}
@@ -169,7 +159,7 @@ export default function GamePage() {
               <strong>No cards selected</strong>
               <button onClick={() => navigate('/slots')}>Choose cards</button>
             </div>
-          ) : selectedSlots.map((slotNum, index) => {
+          ) : selectedSlots.map(slotNum => {
             const card = CARTELAS[slotNum - 1]
             if (!card) return null
             return (
