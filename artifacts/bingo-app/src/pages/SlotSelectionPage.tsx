@@ -137,20 +137,6 @@ export default function SlotSelectionPage() {
     })
   }
 
-  const randomPick = (count: 1 | 2) => {
-    // Account for refunds from currently-selected cards before checking affordability
-    const balanceAfterRefund = stakePerCard > 0
-      ? totalBalanceNum + selectedSlotsRef.current.length * stakePerCard
-      : totalBalanceNum
-    if (stakePerCard > 0 && balanceAfterRefund < count * stakePerCard) { setShowNoBalance(true); return }
-    const available = Array.from({ length: 500 }, (_, i) => i + 1).filter(n => !takenCards.has(n) && !selectedSlotsRef.current.includes(n))
-    const picked = available.sort(() => Math.random() - 0.5).slice(0, count)
-    // Deselect old, select new on server
-    selectedSlotsRef.current.forEach(n => socketRef.current?.emit('deselect_card', n))
-    picked.forEach(n => socketRef.current?.emit('select_card', n))
-    setSelectedSlots(picked)
-  }
-
   const formatTime = (s: number) => `00:${String(Math.max(0, s)).padStart(2, '0')}`
 
   const numbers = Array.from({ length: 500 }, (_, i) => i + 1)
@@ -305,112 +291,67 @@ export default function SlotSelectionPage() {
         </div>
       </div>
 
-      {/* MY CARTELAS — fixed, never scrolls */}
-      <div style={{
-        flexShrink: 0,
-        background: '#090a08',
-        borderTop: '1px solid #3a2410',
-        padding: '10px 12px 0',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-          <span style={{ fontSize: 15 }}>🎴</span>
-          <span className="font-condensed" style={{ fontSize: 14, fontWeight: 700, color: '#D4A017', letterSpacing: '0.06em' }}>
-            MY CARTELAS ({selectedSlots.length}/2)
-          </span>
-        </div>
+      {/* Selected cartelas */}
+      {selectedSlots.length > 0 && (
+        <div style={{
+          flexShrink: 0,
+          background: '#090a08',
+          borderTop: '1px solid #3a2410',
+          padding: '10px 12px 0',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <span style={{ fontSize: 15 }}>🎴</span>
+            <span className="font-condensed" style={{ fontSize: 14, fontWeight: 700, color: '#D4A017', letterSpacing: '0.06em' }}>
+              MY CARTELAS ({selectedSlots.length}/2)
+            </span>
+          </div>
 
-        {/* Two cartela slot previews */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-          {[0, 1].map(i => {
-            const cardNum = selectedSlots[i]
-            const card = cardNum ? CARTELAS[cardNum - 1] : null
-            const COLS = ['B','I','N','G','O']
-            return (
-            <div
-              key={i}
-              className="cartela-placeholder"
-              style={{ padding: card ? '8px 6px' : '18px 10px', minHeight: 100 }}
-              onClick={() => { if (!card) randomPick(1) }}
-            >
-              {card ? (
-                <div style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>SLOT #{i+1}</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: '#D4A017' }}>#{cardNum}</span>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2, marginBottom: 2 }}>
-                    {COLS.map(c => (
-                      <div key={c} style={{
-                        textAlign: 'center', fontSize: 9, fontWeight: 800,
-                        color: '#D4A017', letterSpacing: '0.04em', lineHeight: 1,
-                      }}>{c}</div>
-                    ))}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2 }}>
-                    {card.map((row, r) =>
-                      row.map((num, c) => (
-                        <div key={`${r}-${c}`} style={{
-                          aspectRatio: '1',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          borderRadius: 3,
-                          background: num === 0 ? 'linear-gradient(135deg,#ffd43b,#ff9f00)' : '#15140f',
-                          border: num === 0 ? 'none' : '1px solid #4b2b12',
-                          fontSize: num === 0 ? 10 : 8,
-                          fontWeight: 700,
-                          color: num === 0 ? '#fff' : '#ccc',
-                          lineHeight: 1,
-                        }}>
-                          {num === 0 ? '★' : num}
-                        </div>
-                      ))
-                    )}
+          <div style={{ display: 'grid', gridTemplateColumns: selectedSlots.length === 1 ? '1fr' : '1fr 1fr', gap: 10, marginBottom: 10 }}>
+            {selectedSlots.map((cardNum, i) => {
+              const card = CARTELAS[cardNum - 1]
+              const COLS = ['B','I','N','G','O']
+              return (
+                <div key={cardNum} className="cartela-placeholder" style={{ padding: '8px 6px', minHeight: 100 }}>
+                  <div style={{ width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>SLOT #{i + 1}</span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#D4A017' }}>#{cardNum}</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2, marginBottom: 2 }}>
+                      {COLS.map(c => (
+                        <div key={c} style={{
+                          textAlign: 'center', fontSize: 9, fontWeight: 800,
+                          color: '#D4A017', letterSpacing: '0.04em', lineHeight: 1,
+                        }}>{c}</div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2 }}>
+                      {card.map((row, r) =>
+                        row.map((num, c) => (
+                          <div key={`${r}-${c}`} style={{
+                            aspectRatio: '1',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            borderRadius: 3,
+                            background: num === 0 ? 'linear-gradient(135deg,#ffd43b,#ff9f00)' : '#15140f',
+                            border: num === 0 ? 'none' : '1px solid #4b2b12',
+                            fontSize: num === 0 ? 10 : 8,
+                            fontWeight: 700,
+                            color: num === 0 ? '#fff' : '#ccc',
+                            lineHeight: 1,
+                          }}>
+                            {num === 0 ? '★' : num}
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <>
-                  <div style={{
-                    width: 34, height: 34, borderRadius: '50%',
-                    border: '1.5px dashed #08734a',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 20, color: '#08734a'
-                  }}>+</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: '0.04em' }}>SLOT #{i + 1} EMPTY</div>
-                  <div style={{ fontSize: 9, color: '#555', textAlign: 'center', letterSpacing: '0.03em' }}>TAP GRID (1-500) OR RANDOM PICK</div>
-                </>
-              )}
-            </div>
-          )})}
+              )
+            })}
+          </div>
+          <div style={{ paddingBottom: 20 }} />
         </div>
-
-        {/* Buttons */}
-        <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-          <button
-            onClick={() => randomPick(1)}
-            style={{
-              flex: 1, padding: '11px 0',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              border: 'none', cursor: 'pointer', borderRadius: 50,
-              background: 'linear-gradient(to right, #7c3aed, #a855f7)',
-            }}
-          >
-            <span style={{ fontSize: 13 }}>🎲</span>
-            <span className="font-condensed" style={{ letterSpacing: '0.08em', fontSize: 15, fontWeight: 700, color: '#fff' }}>RANDOM PICK 1</span>
-          </button>
-          <button
-            onClick={() => randomPick(2)}
-            style={{
-              flex: 1, padding: '11px 0',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              border: 'none', cursor: 'pointer', borderRadius: 50,
-              background: 'linear-gradient(to right, #ffb800, #ff8300)',
-            }}
-          >
-            <span style={{ fontSize: 13 }}>🎲</span>
-            <span className="font-condensed" style={{ letterSpacing: '0.08em', fontSize: 15, fontWeight: 700, color: '#fff' }}>RANDOM PICK 2</span>
-          </button>
-        </div>
-        <div style={{ paddingBottom: 20 }} />
-      </div>
+      )}
     </div>
   )
 }
