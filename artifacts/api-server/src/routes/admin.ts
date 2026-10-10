@@ -511,7 +511,7 @@ router.put("/admin/room-settings", async (req: Request, res: Response) => {
   try {
     const keys: RoomSettingKey[] = [
       "stakePerCard", "commissionPercent", "countdownSeconds",
-      "ballIntervalSeconds", "minPlayersToStart",
+      "ballIntervalSeconds",
     ];
     for (const key of keys) {
       if (settings[key] !== undefined) {

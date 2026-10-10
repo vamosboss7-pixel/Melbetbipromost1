@@ -8,8 +8,7 @@ export type RoomSettingKey =
   | "stakePerCard"
   | "commissionPercent"
   | "countdownSeconds"
-  | "ballIntervalSeconds"
-  | "minPlayersToStart";
+  | "ballIntervalSeconds";
 
 export type SettingKey =
   | "telebirrNumber"
@@ -33,8 +32,7 @@ export type SettingKey =
   | "room1_stakePerCard"
   | "room1_commissionPercent"
   | "room1_countdownSeconds"
-  | "room1_ballIntervalSeconds"
-  | "room1_minPlayersToStart";
+  | "room1_ballIntervalSeconds";
 
 export const SETTING_DEFAULTS: Record<SettingKey, string> = {
   telebirrNumber: process.env["TELEBIRR_PHONE"] ?? "0980682889",
@@ -59,7 +57,6 @@ export const SETTING_DEFAULTS: Record<SettingKey, string> = {
   room1_commissionPercent: "10",
   room1_countdownSeconds: "60",
   room1_ballIntervalSeconds: "3",
-  room1_minPlayersToStart: "2",
 };
 
 class AppSettings {
@@ -99,7 +96,7 @@ class AppSettings {
   getRoomAll(room: RoomId): Record<RoomSettingKey, string> {
     const keys: RoomSettingKey[] = [
       "stakePerCard", "commissionPercent", "countdownSeconds",
-      "ballIntervalSeconds", "minPlayersToStart",
+      "ballIntervalSeconds",
     ];
     const result = {} as Record<RoomSettingKey, string>;
     for (const k of keys) {

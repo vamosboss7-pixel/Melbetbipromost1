@@ -1180,7 +1180,6 @@ function SettingsTab() {
         commissionPercent: roomSettings['commissionPercent'],
         countdownSeconds: roomSettings['countdownSeconds'],
         ballIntervalSeconds: roomSettings['ballIntervalSeconds'],
-        minPlayersToStart: roomSettings['minPlayersToStart'],
       },
     })
     if (res.ok) show('✅ Room settings ተቀምጧል')
@@ -1269,7 +1268,6 @@ function SettingsTab() {
               <Input value={R('countdownSeconds')} onChange={v => setR('countdownSeconds', v)} placeholder="Countdown (ሰ)" type="number" />
               <Input value={R('ballIntervalSeconds')} onChange={v => setR('ballIntervalSeconds', v)} placeholder="Ball interval (ሰ)" type="number" />
             </div>
-            <Input value={R('minPlayersToStart')} onChange={v => setR('minPlayersToStart', v)} placeholder="Min players to start" type="number" />
             <Btn onClick={saveRoomSettings} disabled={saving} color="gold">{saving ? 'እያስቀምጥ…' : '💾 Room Settings ቀምጥ'}</Btn>
           </div>
         </Card>

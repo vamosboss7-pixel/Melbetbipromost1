@@ -178,11 +178,6 @@ export class GameEngine {
     return 6;
   }
 
-  private cfgMinPlayersToStart(): number {
-    if (this.roomCfg.roomId) return appSettings.getRoomNum(this.roomCfg.roomId as RoomId, "minPlayersToStart");
-    return 2;
-  }
-
   getNamespace(): Server | Namespace {
     return this.ns;
   }
@@ -234,18 +229,12 @@ export class GameEngine {
       this.broadcastState();
 
       if (this.countdown <= 0) {
-        const uniquePlayersWithCards = this.persistentCards.size;
         const totalCardsSelected = [...this.persistentCards.values()].reduce((sum, p) => sum + p.cardIds.length, 0);
-        const minPlayers = this.cfgMinPlayersToStart();
-        if (totalCardsSelected >= 1 && uniquePlayersWithCards >= minPlayers) {
+        if (totalCardsSelected > 0) {
           void this.startGame();
         } else {
           this.countdown = this.cfgCountdownSeconds();
-          if (totalCardsSelected < 1) {
-            logger.info({ roundId: this.roundId, uniquePlayersWithCards, totalCardsSelected, minPlayers }, "No cards selected — resetting countdown");
-          } else {
-            logger.info({ roundId: this.roundId, uniquePlayersWithCards, totalCardsSelected, minPlayers }, "Not enough players — resetting countdown");
-          }
+          logger.info({ roundId: this.roundId }, "No cards selected — resetting countdown");
         }
       }
     }, 1000);
