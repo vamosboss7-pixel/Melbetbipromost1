@@ -42,22 +42,22 @@ const DEFAULT_STATE: GameState = {
   currentBall: null,
 }
 
-/** Mirrors server getWinPattern — returns true if any winning pattern is complete */
+/** Mirrors server getWinPattern — two distinct lines are required to win. */
 function checkWin(card: number[][], calledSet: Set<number>): boolean {
   const isMarked = (r: number, c: number) =>
     card[r]![c] === 0 || calledSet.has(card[r]![c]!)
+  let completedLines = 0
 
   for (let r = 0; r < 5; r++) {
-    if ([0, 1, 2, 3, 4].every(c => isMarked(r, c))) return true
+    if ([0, 1, 2, 3, 4].every(c => isMarked(r, c))) completedLines++
   }
   for (let c = 0; c < 5; c++) {
-    if ([0, 1, 2, 3, 4].every(r => isMarked(r, c))) return true
+    if ([0, 1, 2, 3, 4].every(r => isMarked(r, c))) completedLines++
   }
-  if ([0, 1, 2, 3, 4].every(i => isMarked(i, i))) return true
-  if ([0, 1, 2, 3, 4].every(i => isMarked(i, 4 - i))) return true
-  if (([[0, 0], [0, 4], [4, 0], [4, 4]] as [number, number][]).every(([r, c]) => isMarked(r, c))) return true
+  if ([0, 1, 2, 3, 4].every(i => isMarked(i, i))) completedLines++
+  if ([0, 1, 2, 3, 4].every(i => isMarked(i, 4 - i))) completedLines++
 
-  return false
+  return completedLines >= 2
 }
 
 export function useGame(

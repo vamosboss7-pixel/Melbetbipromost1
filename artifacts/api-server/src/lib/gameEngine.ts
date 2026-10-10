@@ -61,28 +61,27 @@ export function getColForNumber(n: number): string {
 export function getWinPattern(card: number[][], calledSet: Set<number>): number[] {
   const isMarked = (r: number, c: number) => card[r]![c] === 0 || calledSet.has(card[r]![c]!);
   const vals = (coords: [number, number][]) => coords.map(([r, c]) => card[r]![c]!);
+  const completedLines: number[][] = [];
 
   for (let r = 0; r < 5; r++) {
     const coords: [number, number][] = [0,1,2,3,4].map(c => [r, c]);
-    if (coords.every(([r2, c2]) => isMarked(r2, c2))) return vals(coords);
+    if (coords.every(([r2, c2]) => isMarked(r2, c2))) completedLines.push(vals(coords));
   }
   for (let c = 0; c < 5; c++) {
     const coords: [number, number][] = [0,1,2,3,4].map(r => [r, c]);
-    if (coords.every(([r2, c2]) => isMarked(r2, c2))) return vals(coords);
+    if (coords.every(([r2, c2]) => isMarked(r2, c2))) completedLines.push(vals(coords));
   }
   {
     const coords: [number, number][] = [0,1,2,3,4].map(i => [i, i]);
-    if (coords.every(([r2, c2]) => isMarked(r2, c2))) return vals(coords);
+    if (coords.every(([r2, c2]) => isMarked(r2, c2))) completedLines.push(vals(coords));
   }
   {
     const coords: [number, number][] = [0,1,2,3,4].map(i => [i, 4 - i]);
-    if (coords.every(([r2, c2]) => isMarked(r2, c2))) return vals(coords);
+    if (coords.every(([r2, c2]) => isMarked(r2, c2))) completedLines.push(vals(coords));
   }
-  {
-    const corners: [number, number][] = [[0,0],[0,4],[4,0],[4,4]];
-    if (corners.every(([r2, c2]) => isMarked(r2, c2))) return vals(corners);
-  }
-  return [];
+
+  if (completedLines.length < 2) return [];
+  return [...new Set(completedLines.flat())];
 }
 
 export function checkWin(card: number[][], calledSet: Set<number>): boolean {

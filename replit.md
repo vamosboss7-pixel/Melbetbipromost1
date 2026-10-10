@@ -53,7 +53,7 @@ Key files:
 - Card Selection: 30-second countdown, select up to 2 cards from 200 available
 - If at least 1 player has cards when countdown hits 0 → game starts; otherwise countdown resets
 - Game: balls called every 3 seconds (B1-O75), auto-marked on master grid and player cards
-- Win patterns: any row, column, diagonal, or four corners (FREE space = always marked)
+- Win condition: two completed rows, columns, or diagonals (FREE space = always marked)
 - Winner auto-detected client-side → server validates → winner modal shown to all (5s) → new round
 
 ## Gotchas
