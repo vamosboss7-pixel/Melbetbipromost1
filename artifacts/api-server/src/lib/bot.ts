@@ -488,14 +488,9 @@ bot.callbackQuery(/^cmd_withdraw_(\d+)$/, async (ctx) => {
     const mainBalance = Number(rows[0]!.mainBalance);
     const bonusBalance = Number(rows[0]!.bonusBalance);
 
-    // Lifetime deposit requirement: at least one approved deposit >= 50 ETB for any withdrawal.
+    // Lifetime deposit requirement: at least one approved deposit >= 100 ETB for any withdrawal.
     if (!(await hasLifetimeDeposit(userId, WITHDRAW_MIN_DEPOSIT))) {
-      await ctx.reply(
-        `⛔ <b>ዊዝድሮው ማድረግ አይቻልም</b>\n\n` +
-        `ዊዝድሮው ለማድረግ ቢያንስ አንድ ጊዜ <b>${WITHDRAW_MIN_DEPOSIT} ብር ወይም ከዚያ በላይ</b> ዲፖዚት ማድረግ ያስፈልጋል።\n\n` +
-        `📌 ዲፖዚት ካደረጉ በኋላ ዊዝድሮው ማድረግ ይቻላል።`,
-        { parse_mode: "HTML" }
-      );
+      await ctx.reply(WITHDRAW_DEPOSIT_REQUIRED_MESSAGE, { parse_mode: "HTML" });
       return;
     }
 
@@ -995,14 +990,9 @@ bot.command("withdraw", async (ctx) => {
     const mainBalance = Number(rows[0]!.mainBalance);
     const bonusBalance = Number(rows[0]!.bonusBalance);
 
-    // Lifetime deposit requirement: at least one approved deposit >= 50 ETB for any withdrawal.
+    // Lifetime deposit requirement: at least one approved deposit >= 100 ETB for any withdrawal.
     if (!(await hasLifetimeDeposit(user.id, WITHDRAW_MIN_DEPOSIT))) {
-      await ctx.reply(
-        `⛔ <b>ዊዝድሮው ማድረግ አይቻልም</b>\n\n` +
-        `ዊዝድሮው ለማድረግ ቢያንስ አንድ ጊዜ <b>${WITHDRAW_MIN_DEPOSIT} ብር ወይም ከዚያ በላይ</b> ዲፖዚት ማድረግ ያስፈልጋል።\n\n` +
-        `📌 ዲፖዚት ካደረጉ በኋላ ዊዝድሮው ማድረግ ይቻላል።`,
-        { parse_mode: "HTML" }
-      );
+      await ctx.reply(WITHDRAW_DEPOSIT_REQUIRED_MESSAGE, { parse_mode: "HTML" });
       return;
     }
 
@@ -2015,9 +2005,15 @@ bot.callbackQuery(/^lbox_(\d+)_(\d+)$/, async (ctx) => {
 });
 
 // Minimum general lifetime deposit required for any withdrawal.
-const WITHDRAW_MIN_DEPOSIT = 50;
+const WITHDRAW_MIN_DEPOSIT = 100;
 // Minimum lifetime deposit required to make the bonus balance withdrawable.
 const BONUS_WITHDRAW_MIN_DEPOSIT = 100;
+const WITHDRAW_DEPOSIT_REQUIRED_MESSAGE =
+  `⚠️ <b>የወጪ ማድረጊያ (Withdrawal) መመሪያ</b>\n\n` +
+  `የወጪ ማድረጊያ አገልግሎት የሚነቃቃው የመጀመሪያ ዲፖዚት ሲፈጸም ብቻ ነው።\n\n` +
+  `👉 ማድረግ የሚጠበቅብዎት፦\n\n` +
+  `<b>${WITHDRAW_MIN_DEPOSIT} ብር እና ከዚያ በላይ</b> ዲፖዚት ማድረግ።\n\n` +
+  `ዲፖዚትዎ ከተፈቀደ በኋላ ማውጣት የሚችሉት ባላንስ 100 ብር ወይም ከዚያ በላይ ከሆነ ዊዝድሮው ማድረግ ይችላሉ። ✨`;
 
 // Returns true if the player has at least one approved deposit >= minAmount (lifetime).
 async function hasLifetimeDeposit(telegramId: number, minAmount: number): Promise<boolean> {
@@ -2043,23 +2039,8 @@ async function handleWithdrawRequest(
   accountName: string
 ) {
   try {
-    // Lifetime deposit requirement: at least one approved deposit >= 50 ETB
-    const qualifyingDeposit = await db
-      .select({ id: pendingDepositsTable.id })
-      .from(pendingDepositsTable)
-      .where(and(
-        eq(pendingDepositsTable.telegramId, telegramId),
-        eq(pendingDepositsTable.status, "approved"),
-        sql`${pendingDepositsTable.amount}::numeric >= 50`
-      ))
-      .limit(1);
-    if (!qualifyingDeposit.length) {
-      await ctx.reply(
-        `⛔ <b>ዊዝድሮው ማድረግ አይቻልም</b>\n\n` +
-        `ዊዝድሮው ለማድረግ ቢያንስ አንድ ጊዜ <b>50 ብር ወይም ከዚያ በላይ</b> ዲፖዚት ማድረግ ያስፈልጋል።\n\n` +
-        `📌 ዲፖዚት ካደረጉ በኋላ ዊዝድሮው ማድረግ ይቻላል።`,
-        { parse_mode: "HTML" }
-      );
+    if (!(await hasLifetimeDeposit(telegramId, WITHDRAW_MIN_DEPOSIT))) {
+      await ctx.reply(WITHDRAW_DEPOSIT_REQUIRED_MESSAGE, { parse_mode: "HTML" });
       withdrawSessions.delete(telegramId);
       return;
     }
