@@ -12,7 +12,7 @@ function getPlayNowKeyboard(): InlineKeyboard | null {
   const miniAppUrl = process.env["MINI_APP_URL"] ?? process.env["REPLIT_DOMAINS"]?.split(",")[0];
   if (!miniAppUrl) return null;
   const appUrl = `https://${miniAppUrl}`;
-  return new InlineKeyboard().add({ text: "🎮 ጨዋታ ጀምር", web_app: { url: appUrl } });
+  return new InlineKeyboard().add({ text: "🎮 Play Bingo", web_app: { url: appUrl } });
 }
 
 const router: IRouter = Router();

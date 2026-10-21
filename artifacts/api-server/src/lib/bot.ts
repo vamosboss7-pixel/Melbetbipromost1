@@ -1854,7 +1854,7 @@ export function buildBoxKeyboard(
       const boxNum = j + 1;
       const claimedBy = claimedMap.get(boxNum);
       if (claimedBy) {
-        row.push({ text: `✅ ${claimedBy.slice(0, 10)}`, callback_data: `lbxt_${sessionId}_${boxNum}` });
+        row.push({ text: `✅ #${boxNum} Taken`, callback_data: `lbxt_${sessionId}_${boxNum}` });
       } else {
         row.push({ text: `🎁 ${amountPerBox} ETB`, callback_data: `lbox_${sessionId}_${boxNum}` });
       }

@@ -11,7 +11,7 @@ function getPlayNowKeyboard(): InlineKeyboard | null {
   const miniAppUrl = process.env["MINI_APP_URL"] ?? process.env["REPLIT_DOMAINS"]?.split(",")[0];
   if (!miniAppUrl) return null;
   const appUrl = `https://${miniAppUrl}`;
-  return new InlineKeyboard().add({ text: "🎮 ጨዋታ ጀምር", web_app: { url: appUrl } });
+  return new InlineKeyboard().add({ text: "🎮 Play Bingo", web_app: { url: appUrl } });
 }
 
 async function fireBroadcast(id: number, message: string, imageData: string | null) {
@@ -73,7 +73,7 @@ async function fireDailyPlayBonus(today: string) {
   for (const p of players) {
     try {
       const kb = new InlineKeyboard().add({
-        text: "🎁 ቦነስ ይውሰዱ",
+        text: "🎁 Claim Bonus",
         callback_data: `claim_dpb_${p.telegramId}`,
       });
       if (imageBuffer) {
