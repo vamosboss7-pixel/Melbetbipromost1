@@ -80,8 +80,13 @@ export function getWinPattern(card: number[][], calledSet: Set<number>): number[
     if (coords.every(([r2, c2]) => isMarked(r2, c2))) completedLines.push(vals(coords));
   }
 
-  if (completedLines.length < 2) return [];
-  return [...new Set(completedLines.flat())];
+  const corners: [number, number][] = [[0, 0], [0, 4], [4, 0], [4, 4]];
+  const hasFourCorners = corners.every(([r, c]) => isMarked(r, c));
+  if (completedLines.length < 2 && !(completedLines.length >= 1 && hasFourCorners)) return [];
+  return [...new Set([
+    ...completedLines.flat(),
+    ...(completedLines.length >= 1 && hasFourCorners ? vals(corners) : []),
+  ])];
 }
 
 export function checkWin(card: number[][], calledSet: Set<number>): boolean {

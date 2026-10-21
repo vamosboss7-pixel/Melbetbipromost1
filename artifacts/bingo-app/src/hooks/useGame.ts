@@ -42,7 +42,7 @@ const DEFAULT_STATE: GameState = {
   currentBall: null,
 }
 
-/** Mirrors server getWinPattern — two distinct lines are required to win. */
+/** Mirrors the server's two-line or line-plus-four-corners win rule. */
 function checkWin(card: number[][], calledSet: Set<number>): boolean {
   const isMarked = (r: number, c: number) =>
     card[r]![c] === 0 || calledSet.has(card[r]![c]!)
@@ -57,7 +57,8 @@ function checkWin(card: number[][], calledSet: Set<number>): boolean {
   if ([0, 1, 2, 3, 4].every(i => isMarked(i, i))) completedLines++
   if ([0, 1, 2, 3, 4].every(i => isMarked(i, 4 - i))) completedLines++
 
-  return completedLines >= 2
+  const hasFourCorners = isMarked(0, 0) && isMarked(0, 4) && isMarked(4, 0) && isMarked(4, 4)
+  return completedLines >= 2 || (completedLines >= 1 && hasFourCorners)
 }
 
 export function useGame(
