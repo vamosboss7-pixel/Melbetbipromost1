@@ -70,7 +70,10 @@ export function useGame(
   const [winner, setWinner] = useState<WinnerEvent | null>(null)
   const [myCardIds, setMyCardIds] = useState<number[]>([])
   const [takenCardIds, setTakenCardIds] = useState<number[]>([])
-  const cardsSelectedRef = useRef(false)
+  const playerRegisteredRef = useRef(false)
+  const confirmedCardIdsRef = useRef<number[]>([])
+  const submittedCardIdsRef = useRef(new Set<number>())
+  const pendingClaimRoundRef = useRef<string | null>(null)
 
   // Refs so the socket event closures always see current values
   const selectedCardIdsRef = useRef(selectedCardIds)
@@ -78,28 +81,57 @@ export function useGame(
   const gameStateRef = useRef<GameState>(DEFAULT_STATE)
   const claimedRoundRef = useRef<string | null>(null)
 
-  useEffect(() => { selectedCardIdsRef.current = selectedCardIds }, [selectedCardIds])
-  useEffect(() => { identityRef.current = identity }, [identity])
+  useEffect(() => {
+    selectedCardIdsRef.current = selectedCardIds
+    const socket = socketRef.current
+    if (socket?.connected && gameStateRef.current.phase === 'waiting') selectPendingCards(socket)
+  }, [selectedCardIds])
+  useEffect(() => {
+    identityRef.current = identity
+    const socket = socketRef.current
+    if (identity && socket?.connected) joinRoom(socket, identity)
+  }, [identity])
 
-  /** Checks all player cards against calledSet; emits claim_bingo on the first win */
-  function tryClaimWin(socket: Socket, calledBalls: number[], roundId: string) {
-    if (!roundId || claimedRoundRef.current === roundId) return
-    const calledSet = new Set(calledBalls)
+  function selectPendingCards(socket: Socket) {
+    if (!playerRegisteredRef.current || !identityRef.current) return
     for (const cardId of selectedCardIdsRef.current) {
+      if (!confirmedCardIdsRef.current.includes(cardId) && !submittedCardIdsRef.current.has(cardId)) {
+        submittedCardIdsRef.current.add(cardId)
+        socket.emit('select_card', cardId)
+      }
+    }
+  }
+
+  function joinRoom(socket: Socket, id: { telegramId: number; firstName: string }) {
+    socket.emit('join_room', id, (joined: boolean) => {
+      playerRegisteredRef.current = joined
+      if (joined) selectPendingCards(socket)
+    })
+  }
+
+  /** Checks server-confirmed cards against called numbers and retries rejected claims. */
+  function tryClaimWin(socket: Socket, calledBalls: number[], roundId: string) {
+    if (!roundId || claimedRoundRef.current === roundId || pendingClaimRoundRef.current === roundId) return
+    const calledSet = new Set(calledBalls)
+    for (const cardId of confirmedCardIdsRef.current) {
       const card = CARTELAS[cardId - 1]
       if (card && checkWin(card, calledSet)) {
-        claimedRoundRef.current = roundId
-        sessionStorage.setItem('claimedRound', roundId)
-        socket.emit('claim_bingo', { roundId, cardId })
+        pendingClaimRoundRef.current = roundId
+        socket.timeout(3000).emit('claim_bingo', { roundId, cardId }, (error: Error | null, accepted: boolean) => {
+          if (pendingClaimRoundRef.current !== roundId) return
+          pendingClaimRoundRef.current = null
+          if (error || !accepted) return
+          claimedRoundRef.current = roundId
+          sessionStorage.setItem('acceptedClaimedRound', roundId)
+        })
         break
       }
     }
   }
 
   useEffect(() => {
-    // Restore claimed round from sessionStorage so a refresh within the same round
-    // doesn't re-emit claim_bingo
-    const storedClaimed = sessionStorage.getItem('claimedRound')
+    sessionStorage.removeItem('claimedRound')
+    const storedClaimed = sessionStorage.getItem('acceptedClaimedRound')
     if (storedClaimed) claimedRoundRef.current = storedClaimed
 
     const socket = io({
@@ -110,27 +142,23 @@ export function useGame(
 
     socket.on('connect', () => {
       setConnected(true)
+      playerRegisteredRef.current = false
+      submittedCardIdsRef.current.clear()
       const id = identityRef.current
-      if (id) {
-        socket.emit('join_room', { telegramId: id.telegramId, firstName: id.firstName })
-      }
-      // Select cards immediately after joining
-      if (selectedCardIdsRef.current.length > 0) {
-        selectedCardIdsRef.current.forEach(id => socket.emit('select_card', id))
-        cardsSelectedRef.current = true
-      }
+      if (id) joinRoom(socket, id)
     })
 
-    socket.on('disconnect', () => setConnected(false))
+    socket.on('disconnect', () => {
+      setConnected(false)
+      playerRegisteredRef.current = false
+      pendingClaimRoundRef.current = null
+    })
 
     socket.on('game_state', (state: GameState) => {
       gameStateRef.current = state
       setGameState(state)
       // If we haven't sent our cards yet and it's waiting phase, send them now
-      if (!cardsSelectedRef.current && state.phase === 'waiting' && selectedCardIdsRef.current.length > 0) {
-        selectedCardIdsRef.current.forEach(id => socket.emit('select_card', id))
-        cardsSelectedRef.current = true
-      }
+      if (state.phase === 'waiting' && selectedCardIdsRef.current.length > 0) selectPendingCards(socket)
       // Check for a win on reconnect/state sync during a live round
       if (state.phase === 'playing') {
         tryClaimWin(socket, state.calledBalls, state.roundId)
@@ -166,15 +194,22 @@ export function useGame(
     socket.on('round_reset', () => {
       setWinner(null)
       setMyCardIds([])
-      cardsSelectedRef.current = false
+      playerRegisteredRef.current = false
+      confirmedCardIdsRef.current = []
+      submittedCardIdsRef.current.clear()
+      pendingClaimRoundRef.current = null
       claimedRoundRef.current = null
-      sessionStorage.removeItem('claimedRound')
+      sessionStorage.removeItem('acceptedClaimedRound')
       gameStateRef.current = DEFAULT_STATE
       setGameState(DEFAULT_STATE)
     })
 
     socket.on('my_cards', (data: { cardIds: number[] }) => {
+      confirmedCardIdsRef.current = data.cardIds
       setMyCardIds(data.cardIds)
+      if (gameStateRef.current.phase === 'playing') {
+        tryClaimWin(socket, gameStateRef.current.calledBalls, gameStateRef.current.roundId)
+      }
     })
 
     socket.on('cards_taken', (data: { cardIds: number[] }) => {

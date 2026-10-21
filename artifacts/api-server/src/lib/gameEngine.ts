@@ -305,33 +305,33 @@ export class GameEngine {
     this.broadcastState();
   }
 
-  handleClaimBingo(socket: Socket, data: { roundId: string; cardId: number; card?: number[][] }) {
-    if (this.phase !== "playing") return;
-    if (data.roundId !== this.roundId) return;
+  handleClaimBingo(socket: Socket, data: { roundId: string; cardId: number; card?: number[][] }): boolean {
+    if (this.phase !== "playing") return false;
+    if (data.roundId !== this.roundId) return false;
 
     const player = this.players.get(socket.id);
-    if (!player) return;
-    if (!player.cardIds.includes(data.cardId)) return;
+    if (!player) return false;
+    if (!player.cardIds.includes(data.cardId)) return false;
     // Track claims by telegramId so that each player can win at most once per
     // round, but two different players who legitimately hold the same card
     // (e.g. due to a race-condition during selection) are not unfairly blocked.
-    if (this.claimedThisRound.has(player.telegramId)) return;
+    if (this.claimedThisRound.has(player.telegramId)) return this.winners.some(winner => winner.telegramId === player.telegramId);
 
     // Always use the server's own authoritative card data — never trust the client-supplied card.
     const serverCard = this.cfgCartelas()[data.cardId - 1];
     if (!serverCard) {
       logger.warn({ cardId: data.cardId }, "claim_bingo: cardId not found in server cartelas");
-      return;
+      return false;
     }
 
     const calledSet = new Set(this.calledBalls);
-    if (!checkWin(serverCard, calledSet)) return;
+    if (!checkWin(serverCard, calledSet)) return false;
 
     // Co-winner check: if a tie window is open, only accept claims at the same
     // ball count as the first winner. Claims after extra balls have been called
     // are rejected (that player would have won earlier and didn't claim in time).
     const isFirstWinner = this.tieWindowBallCount === 0;
-    if (!isFirstWinner && this.calledBalls.length !== this.tieWindowBallCount) return;
+    if (!isFirstWinner && this.calledBalls.length !== this.tieWindowBallCount) return false;
 
     this.claimedThisRound.add(player.telegramId);
 
@@ -359,6 +359,7 @@ export class GameEngine {
     }
     // If not the first winner, simply fall through — tieWindowTimer will fire
     // and include this winner when it calls declareWinnersAndFinish().
+    return true;
   }
 
   private declareWinnersAndFinish() {
@@ -536,10 +537,10 @@ export class GameEngine {
     return undefined;
   }
 
-  async handleJoin(socket: Socket, data: { telegramId: number; firstName: string }) {
+  async handleJoin(socket: Socket, data: { telegramId: number; firstName: string }): Promise<boolean> {
     const { telegramId, firstName } = data;
 
-    if (this.players.has(socket.id)) return;
+    if (this.players.has(socket.id)) return true;
 
     for (const [sid, p] of this.players) {
       if (p.telegramId === telegramId && sid !== socket.id) {
@@ -565,7 +566,7 @@ export class GameEngine {
             const msg = `ጨዋታ ለመቀላቀል ቢያንስ ${stakePerCard} ብር ያስፈልጋል። አሁን ያለዎ ባላንስ: ${balance.toFixed(2)} ብር`;
             socket.emit("join_error", { message: msg });
             logger.info({ telegramId, balance, stakePerCard, namespace: this.roomCfg.namespace ?? "/" }, "join_error: insufficient balance");
-            return;
+            return false;
           }
         } catch (err) {
           logger.error({ err, telegramId }, "Failed to check balance for bingo join");
@@ -642,6 +643,7 @@ export class GameEngine {
     }
 
     logger.info({ socketId: socket.id, telegramId, restoredCards: cardIds.length }, "Player joined");
+    return true;
   }
 
   private getAllTakenCardIds(): number[] {
