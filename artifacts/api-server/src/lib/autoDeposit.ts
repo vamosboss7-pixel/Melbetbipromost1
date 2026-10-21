@@ -179,20 +179,16 @@ export async function processBotDeposit(
       return { status: "pending" };
     }
 
-    try {
-      await db.insert(autoDepositsTable).values({
-        transactionCode,
-        amountRequested: `${amountRequested}`,
-        telegramId,
-        firstName,
-        botReceivedAt: new Date(),
-        status: "pending_bot",
-      });
-    } catch {
-      return { status: "duplicate" };
-    }
+    const inserted = await db.insert(autoDepositsTable).values({
+      transactionCode,
+      amountRequested: `${amountRequested}`,
+      telegramId,
+      firstName,
+      botReceivedAt: new Date(),
+      status: "pending_bot",
+    }).onConflictDoNothing({ target: autoDepositsTable.transactionCode }).returning({ id: autoDepositsTable.id });
 
-    return { status: "pending" };
+    return inserted.length > 0 ? { status: "pending" } : { status: "duplicate" };
   } catch (err) {
     logger.error({ err, transactionCode }, "processBotDeposit error");
     return { status: "failed" };

@@ -299,6 +299,7 @@ bot.command("start", async (ctx) => {
     }
   } catch (err) {
     logger.error({ err, telegramId: user.id }, "Failed to upsert player on /start");
+    await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ ጊዜያዊ ችግር ላይ ነው። መለያዎ አልተመዘገበም፤ ቆይተው /start ን እንደገና ይሞክሩ።");
   }
 
   // Remove any lingering persistent reply keyboard silently
@@ -548,8 +549,8 @@ bot.callbackQuery(/^cmd_balance_(\d+)$/, async (ctx) => {
       { parse_mode: "HTML" }
     );
   } catch (err) {
-    logger.error({ err }, "cmd_balance callback error");
-    await ctx.reply("❌ ስህተት ተፈጥሯል።");
+    logger.error({ err, telegramId: userId }, "cmd_balance callback error");
+    await ctx.reply("⚠️ ባላንስዎን ለማሳየት የዳታቤዝ አገልግሎቱ አሁን አይገኝም። ባላንስዎ አልተቀየረም፤ ቆይተው እንደገና ይሞክሩ።");
   }
 });
 
@@ -1639,8 +1640,13 @@ bot.on("message:text", async (ctx) => {
       return;
     }
     if (depSession.step === "confirm") {
-      const retry = await handleDepositConfirmation(ctx as any, user.id, user.first_name, depSession.amount, text);
-      if (!retry) depositSessions.delete(user.id);
+      try {
+        const retry = await handleDepositConfirmation(ctx as any, user.id, user.first_name, depSession.amount, text);
+        if (!retry) depositSessions.delete(user.id);
+      } catch (err) {
+        logger.error({ err, telegramId: user.id }, "Deposit confirmation unavailable");
+        await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ አሁን አይገኝም። አዲስ ክፍያ አይፈጽሙ፤ ተመሳሳይ የTelebirr ትራንዛክሽን ኮድዎን ከጥቂት ጊዜ በኋላ እንደገና ይላኩ።");
+      }
       return;
     }
   }
@@ -1786,6 +1792,11 @@ async function handleDepositConfirmation(
     return false;
   }
 
+  if (autoResult.status === "failed") {
+    await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ አሁን አይገኝም። አዲስ ክፍያ አይፈጽሙ፤ ይህንኑ የTelebirr ኮድ ከጥቂት ጊዜ በኋላ እንደገና ይሞክሩ።");
+    return true;
+  }
+
   if (autoResult.status === "duplicate") {
     await ctx.reply(
       `⚠️ <b>ይህ ኮድ አስቀድሞ ጥቅም ላይ ውሏል</b>\n\n🔖 <code>${code}</code>\n\nስህተት ከሆነ አድሚንን ያነጋግሩ።`,
@@ -1820,8 +1831,9 @@ async function handleDepositConfirmation(
     }
     logger.info({ telegramId, amount, depId, code }, "Deposit submitted (pending)");
   } catch (err) {
-    logger.error({ err }, "deposit confirmation error");
-    await ctx.reply("❌ ስህተት ተፈጥሯል። እንደገና ይሞክሩ።");
+    logger.error({ err, telegramId }, "deposit confirmation error");
+    await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ አሁን አይገኝም። አዲስ ክፍያ አይፈጽሙ፤ ይህንኑ የTelebirr ኮድ ከጥቂት ጊዜ በኋላ እንደገና ይሞክሩ።");
+    return true;
   }
   return false;
 }
