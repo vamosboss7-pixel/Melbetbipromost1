@@ -222,8 +222,8 @@ bot.command("start", async (ctx) => {
   const membership = await checkChannelMembership(user.id);
   if (!membership.ok) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 ቻናሉን ይቀላቀሉ`, url: channelJoinUrl(ch) }]);
-    joinRows.push([{ text: "✅ ተቀላቀልኩ", callback_data: `chk_${user.id}` }]);
+    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 Join Channel`, url: channelJoinUrl(ch) }]);
+    joinRows.push([{ text: "✅ Verify Membership", callback_data: `chk_${user.id}` }]);
     await ctx.reply(
       `👋 ሰላም ${user.first_name}!\n\n` +
       `🔒 <b>ጨዋታ ለመጀመር ቅድሚያ ቻናሎቻችንን ይቀላቀሉ:</b>\n\n` +
@@ -321,22 +321,22 @@ bot.command("start", async (ctx) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const startKb: any[][] = [
     [
-      ...(playUrl ? [{ text: "🎮 Play Game (ክፈት)", web_app: { url: playUrl } }] : [{ text: "🎮 Play Game (ክፈት)", callback_data: `cmd_noplay_${user.id}` }]),
+      ...(playUrl ? [{ text: "🎮 Play Game", web_app: { url: playUrl } }] : [{ text: "🎮 Play Game", callback_data: `cmd_noplay_${user.id}` }]),
     ],
     [
-      { text: "🏦 Add Funds (ገቢ)", callback_data: `cmd_deposit_${user.id}` },
-      { text: "💵 Cash Out (ወጪ)", callback_data: `cmd_withdraw_${user.id}` },
+      { text: "🏦 Add Funds", callback_data: `cmd_deposit_${user.id}` },
+      { text: "💵 Cash Out", callback_data: `cmd_withdraw_${user.id}` },
     ],
     [
-      { text: "📊 My Balance (ቀሪ ሂሳብ)", callback_data: `cmd_balance_${user.id}` },
-      { text: "🤝 Refer & Earn (ይጋብዙ)", callback_data: `cmd_invite_${user.id}` },
+      { text: "📊 My Balance", callback_data: `cmd_balance_${user.id}` },
+      { text: "🤝 Refer & Earn", callback_data: `cmd_invite_${user.id}` },
     ],
     [
-      { text: "📜 How to Play (መመሪያ)", callback_data: `cmd_howtoplay_${user.id}` },
-      { text: "🎧 Support (እርዳታ)", callback_data: `cmd_support_${user.id}` },
+      { text: "📜 How to Play", callback_data: `cmd_howtoplay_${user.id}` },
+      { text: "🎧 Support", callback_data: `cmd_support_${user.id}` },
     ],
     [
-      { text: "👤 Register (መመዝገቢያ)", callback_data: `cmd_register_${user.id}` },
+      { text: "👤 Register", callback_data: `cmd_register_${user.id}` },
     ],
     [
       { text: "🎟 Promo Code", callback_data: `cmd_promo_${user.id}` },
@@ -414,20 +414,20 @@ bot.command("start", async (ctx) => {
     logger.error({ err: startErr, telegramId: user.id }, "/start handler error — sending fallback");
     try {
       const fallbackKb = [
-        [{ text: "🎮 Play Game (ክፈት)", callback_data: `cmd_noplay_${user.id}` }],
+        [{ text: "🎮 Play Game", callback_data: `cmd_noplay_${user.id}` }],
         [
-          { text: "🏦 Add Funds (ገቢ)", callback_data: `cmd_deposit_${user.id}` },
-          { text: "💵 Cash Out (ወጪ)", callback_data: `cmd_withdraw_${user.id}` },
+          { text: "🏦 Add Funds", callback_data: `cmd_deposit_${user.id}` },
+          { text: "💵 Cash Out", callback_data: `cmd_withdraw_${user.id}` },
         ],
         [
-          { text: "📊 My Balance (ቀሪ ሂሳብ)", callback_data: `cmd_balance_${user.id}` },
-          { text: "🤝 Refer & Earn (ይጋብዙ)", callback_data: `cmd_invite_${user.id}` },
+          { text: "📊 My Balance", callback_data: `cmd_balance_${user.id}` },
+          { text: "🤝 Refer & Earn", callback_data: `cmd_invite_${user.id}` },
         ],
         [
-          { text: "📜 How to Play (መመሪያ)", callback_data: `cmd_howtoplay_${user.id}` },
-          { text: "🎧 Support (እርዳታ)", callback_data: `cmd_support_${user.id}` },
+          { text: "📜 How to Play", callback_data: `cmd_howtoplay_${user.id}` },
+          { text: "🎧 Support", callback_data: `cmd_support_${user.id}` },
         ],
-        [{ text: "👤 Register (መመዝገቢያ)", callback_data: `cmd_register_${user.id}` }],
+        [{ text: "👤 Register", callback_data: `cmd_register_${user.id}` }],
         [
           { text: "🎟 Promo Code", callback_data: `cmd_promo_${user.id}` },
           { text: "🔄 Transfer", callback_data: `cmd_transfer_${user.id}` },
@@ -454,8 +454,8 @@ bot.callbackQuery(/^chk_(\d+)$/, async (ctx) => {
   const membership = await checkChannelMembership(userId);
   if (!membership.ok) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 ቻናሉን ይቀላቀሉ`, url: channelJoinUrl(ch) }]);
-    joinRows.push([{ text: "✅ ተቀላቀልኩ", callback_data: `chk_${userId}` }]);
+    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 Join Channel`, url: channelJoinUrl(ch) }]);
+    joinRows.push([{ text: "✅ Verify Membership", callback_data: `chk_${userId}` }]);
     await ctx.editMessageText(
       `⚠️ አሁንም ቻናሉን አልተቀላቀሉም።\n\n` +
       membership.missing.map(ch => `• ${ch}`).join("\n") +
@@ -566,7 +566,7 @@ bot.callbackQuery(/^cmd_invite_(\d+)$/, async (ctx) => {
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
   await ctx.reply(shareText, {
     reply_markup: {
-      inline_keyboard: [[{ text: "🔗 ሊንኩን ላክ (Share Link)", url: shareUrl }]],
+      inline_keyboard: [[{ text: "🔗 Share Invite Link", url: shareUrl }]],
     },
   });
 });
@@ -683,7 +683,7 @@ bot.callbackQuery(/^cmd_support_(\d+)$/, async (ctx) => {
     {
       parse_mode: "HTML",
       reply_markup: {
-        inline_keyboard: [[{ text: "💬 Support ይክፈቱ", url: supportUrl }]],
+        inline_keyboard: [[{ text: "💬 Open Support", url: supportUrl }]],
       },
     }
   );
@@ -832,8 +832,8 @@ async function handleChannelBonusCheck(ctx: any) {
       {
         reply_markup: {
           inline_keyboard: [
-            [{ text: "📢 ቻናሉን ይቀላቀሉ", url: `https://t.me/${BONUS_CHANNEL_USERNAME.replace("@", "")}` }],
-            [{ text: "🔄 አባል ሆኛለሁ ቼክ አድርግ (Verify)", callback_data: `cmd_channel_verify_${userId}` }],
+            [{ text: "📢 Join Channel", url: `https://t.me/${BONUS_CHANNEL_USERNAME.replace("@", "")}` }],
+            [{ text: "🔄 Verify Membership", callback_data: `cmd_channel_verify_${userId}` }],
           ],
         },
       }
@@ -906,7 +906,7 @@ bot.command("invite", async (ctx) => {
   const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
   await ctx.reply(shareText, {
     reply_markup: {
-      inline_keyboard: [[{ text: "🔗 ሊንኩን ላክ (Share Link)", url: shareUrl }]],
+      inline_keyboard: [[{ text: "🔗 Share Invite Link", url: shareUrl }]],
     },
   });
 });
@@ -1049,7 +1049,7 @@ bot.command("pending", async (ctx) => {
       .limit(20);
     if (!deposits.length) { await ctx.reply("✅ አሁን የሚጠባበቅ deposit የለም።"); return; }
     for (const dep of deposits) {
-      const kb = new InlineKeyboard().text("✅ አፀድቅ", `approve_${dep.id}`).text("❌ ሰርዝ", `reject_${dep.id}`);
+      const kb = new InlineKeyboard().text("✅ Approve", `approve_${dep.id}`).text("❌ Reject", `reject_${dep.id}`);
       await ctx.reply(
         `📥 <b>Deposit #${dep.id}</b>\n👤 ${dep.firstName} (${dep.telegramId})\n💰 <b>${Number(dep.amount).toFixed(0)} ብር</b>\n` +
         (dep.confirmationText ? `📝 Confirmation:\n<code>${dep.confirmationText}</code>` : ""),
@@ -1072,7 +1072,7 @@ bot.command("pendingwithdraw", async (ctx) => {
       .limit(20);
     if (!withdrawals.length) { await ctx.reply("✅ አሁን የሚጠባበቅ withdraw የለም።"); return; }
     for (const w of withdrawals) {
-      const kb = new InlineKeyboard().text("✅ ልከዋለሁ", `approvew_${w.id}`).text("❌ ሰርዝ", `rejectw_${w.id}`);
+      const kb = new InlineKeyboard().text("✅ Mark Paid", `approvew_${w.id}`).text("❌ Reject", `rejectw_${w.id}`);
       await ctx.reply(
         `📤 <b>Withdrawal #${w.id}</b>\n👤 ${w.firstName} (${w.telegramId})\n💸 <b>${Number(w.amount).toFixed(0)} ብር</b>\n📞 Telebirr: <code>${w.phone}</code>\n🏷 አካውንት ሆልደር: <b>${w.accountName || "—"}</b>`,
         { parse_mode: "HTML", reply_markup: kb }
@@ -1493,7 +1493,7 @@ bot.on("message:text", async (ctx) => {
       {
         parse_mode: "HTML",
         reply_markup: {
-          inline_keyboard: [[{ text: "🔐 Admin Panel ይክፈቱ", web_app: { url: adminUrl } }]],
+          inline_keyboard: [[{ text: "🔐 Open Admin Panel", web_app: { url: adminUrl } }]],
         },
       }
     );
@@ -1822,7 +1822,7 @@ async function handleDepositConfirmation(
     );
 
     if (ADMIN_ID) {
-      const kb = new InlineKeyboard().text("✅ አፀድቅ", `approve_${depId}`).text("❌ ሰርዝ", `reject_${depId}`);
+      const kb = new InlineKeyboard().text("✅ Approve", `approve_${depId}`).text("❌ Reject", `reject_${depId}`);
       await bot.api.sendMessage(
         ADMIN_ID,
         `📥 <b>Deposit #${depId}</b>\n👤 ${firstName} (${telegramId})\n💰 <b>${amount} ብር</b>\n🔖 ኮድ: <code>${code}</code>`,
@@ -1856,7 +1856,7 @@ export function buildBoxKeyboard(
       if (claimedBy) {
         row.push({ text: `✅ ${claimedBy.slice(0, 10)}`, callback_data: `lbxt_${sessionId}_${boxNum}` });
       } else {
-        row.push({ text: `🎁 ${amountPerBox} ብር`, callback_data: `lbox_${sessionId}_${boxNum}` });
+        row.push({ text: `🎁 ${amountPerBox} ETB`, callback_data: `lbox_${sessionId}_${boxNum}` });
       }
     }
     rows.push(row);
@@ -1983,7 +1983,7 @@ bot.callbackQuery(/^lbox_(\d+)_(\d+)$/, async (ctx) => {
           const miniAppUrl = (process.env["MINI_APP_URL"] ?? _botDomain)?.trim() || null;
           const playUrl = miniAppUrl ? `https://${miniAppUrl}` : null;
           const resultKb = botUsername && playUrl
-            ? { inline_keyboard: [[{ text: "🎱 መልካም BINGO — Play NOW", web_app: { url: playUrl } }]] }
+            ? { inline_keyboard: [[{ text: "🎱 Play Bingo Now", web_app: { url: playUrl } }]] }
             : { inline_keyboard: [] };
 
           if (session.imageBase64) {
@@ -2137,7 +2137,7 @@ async function handleWithdrawRequest(
       { parse_mode: "HTML" }
     );
     if (ADMIN_ID) {
-      const kb = new InlineKeyboard().text("✅ ልከዋለሁ", `approvew_${wId}`).text("❌ ሰርዝ", `rejectw_${wId}`);
+      const kb = new InlineKeyboard().text("✅ Mark Paid", `approvew_${wId}`).text("❌ Reject", `rejectw_${wId}`);
       await bot.api.sendMessage(
         ADMIN_ID,
         `📤 <b>አዲስ Withdrawal #${wId}</b>\n` +
