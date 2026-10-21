@@ -354,7 +354,7 @@ bot.command("start", async (ctx) => {
 
   // Full welcome text (for plain text messages — up to 4096 chars)
   const welcomeText =
-    `🎱 <b>እንኳን ወደ Melbet BINGO መጡ!</b>\n\n` +
+    `🎱 <b>እንኳን ወደ Gladiators Bingo መጡ!</b>\n\n` +
     `🎮 <b>ለጀማሪዎች — እንዴት ይጀምሩ?</b>\n` +
     `1️⃣ <b>👤 Register</b> — አካዉንት ይክፈቱ\n` +
     `2️⃣ <b>🏦 Add Funds</b> — ከ10ብር ጀምሮ ያስገቡ\n` +
@@ -371,7 +371,7 @@ bot.command("start", async (ctx) => {
 
   // Short caption for photo messages (Telegram limit: 1024 chars)
   const welcomeCaption =
-    `🎱 <b>እንኳን ወደ Melbet BINGO መጡ!</b>\n\n` +
+    `🎱 <b>እንኳን ወደ Gladiators Bingo መጡ!</b>\n\n` +
     `1️⃣ 👤 Register — አካዉንት ይክፈቱ\n` +
     `2️⃣ 🏦 Add Funds — ከ10ብር ጀምሮ ያስገቡ\n` +
     `3️⃣ 🎮 Play Game — ጨዋታ ይጀምሩ!\n\n` +
@@ -438,7 +438,7 @@ bot.command("start", async (ctx) => {
         ],
       ];
       await ctx.reply(
-        `🎱 <b>እንኳን ወደ Melbet BINGO መጡ!</b>\n\n👇 ቁልፍ ይምረጡ`,
+        `🎱 <b>እንኳን ወደ Gladiators Bingo መጡ!</b>\n\n👇 ቁልፍ ይምረጡ`,
         { parse_mode: "HTML", reply_markup: { inline_keyboard: fallbackKb } }
       );
     } catch { /* non-fatal */ }
@@ -562,8 +562,8 @@ bot.callbackQuery(/^cmd_invite_(\d+)$/, async (ctx) => {
   if (!botUsername) { await ctx.reply("❌ ሊንክ ማምጣት አልተቻለም።"); return; }
   const inviteLink = `https://t.me/${botUsername}?start=ref_${userId}`;
   const firstName = ctx.from.first_name ?? "ወዳጆ";
-  const shareText = `🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
+  const shareText = `🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
   await ctx.reply(shareText, {
     reply_markup: {
       inline_keyboard: [[{ text: "🔗 Share Invite Link", url: shareUrl }]],
@@ -732,7 +732,7 @@ bot.callbackQuery(/^cmd_howtoplay_(\d+)$/, async (ctx) => {
   if (ctx.from.id !== userId) return ctx.answerCallbackQuery();
   await ctx.answerCallbackQuery();
   await ctx.reply(
-    `📜 <b>የMelbet ቢንጎ ጨዋታ ህጎች</b>\n\n` +
+    `📜 <b>የ Gladiators Bingo ጨዋታ ህጎች</b>\n\n` +
     `🃏 <b>መጫወቻ ካርድ</b>\n\n` +
     `1. ጨዋታውን ለመጀመር ከሚመጣልን ከ1-500 የመጫወቻ ካርድ ውስጥ አንዱን እንመርጣለን።\n\n` +
     `2. የመጫወቻ ካርዱ ላይ በቀይ ቀለም የተመረጡ ቁጥሮች የሚያሳዩት መጫወቻ ካርድ በሌላ ተጫዋች መመረጡን ነው።\n\n` +
@@ -902,8 +902,8 @@ bot.command("invite", async (ctx) => {
   }
   const inviteLink = `https://t.me/${botUsername}?start=ref_${user.id}`;
   const firstName = user.first_name ?? "ወዳጆ";
-  const shareText = `🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
+  const shareText = `🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
   await ctx.reply(shareText, {
     reply_markup: {
       inline_keyboard: [[{ text: "🔗 Share Invite Link", url: shareUrl }]],
@@ -1879,8 +1879,8 @@ export function buildResultsMessage(
   }
   text += `\n💵 <b>ጠቅላላ ተሰራጨ: ${total.toFixed(0)} ብር</b>\n\n`;
   text += `🎉 <b>እንኳን ደስ አላቹ! ሁሉም Lucky Box ተወስዷል!</b>\n`;
-  text += `💫 ቀጣዩ Lucky Box ለማያዣዘው — መልካም BINGO ጨዋታ ተቀላቀሉ!\n`;
-  text += `🎱 <i>መልካም Bingo — ዛሬም ይጫወቱ!</i>`;
+  text += `💫 ቀጣዩ Lucky Box ለማያዣዘው — Gladiators Bingo ጨዋታ ተቀላቀሉ!\n`;
+  text += `🎱 <i>Gladiators Bingo — ዛሬም ይጫወቱ!</i>`;
   return text;
 }
 
@@ -1966,7 +1966,7 @@ bot.callbackQuery(/^lbox_(\d+)_(\d+)$/, async (ctx) => {
     // Notify user via private message
     try {
       await bot.api.sendMessage(user.id,
-        `🎁 <b>Lucky Box ዕድለኛ ሆኑ!</b>\n\n💰 <b>${amount} ብር</b> ወደ ዋሌትዎ ተጨምሯል!\n\n🎱 <i>መልካም Bingo — ይጫወቱ ይዝናኑ!</i>`,
+        `🎁 <b>Lucky Box ዕድለኛ ሆኑ!</b>\n\n💰 <b>${amount} ብር</b> ወደ ዋሌትዎ ተጨምሯል!\n\n🎱 <i>Gladiators Bingo — ይጫወቱ ይዝናኑ!</i>`,
         { parse_mode: "HTML" }
       );
     } catch { /* non-fatal */ }

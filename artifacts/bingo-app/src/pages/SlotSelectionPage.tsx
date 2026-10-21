@@ -226,7 +226,7 @@ export default function SlotSelectionPage() {
       <header className="selection-header">
         <div className="selection-titlebar">
           <button className="selection-back" onClick={() => navigate('/')} aria-label="Back to lobby">←</button>
-          <h1>Yes Bingo</h1>
+          <h1>Gladiators Bingo</h1>
           <span className={`connection-dot${connected ? ' connected' : ''}`} />
           <button className="selection-menu" aria-label="More options">⋮</button>
         </div>

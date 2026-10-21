@@ -99,7 +99,7 @@ export default function GamePage() {
     <main className="game-page">
       <header className="game-topbar">
         <button className="game-back" onClick={() => navigate('/slots')} aria-label="Back to cards">←</button>
-        <h1>Yes Bingo</h1>
+        <h1>Gladiators Bingo</h1>
         <span className={`connection-dot${connected ? ' connected' : ''}`} title={connected ? 'Live' : 'Connecting'} />
         <button className="game-menu" onClick={() => navigate('/slots')} aria-label="More options">⋮</button>
       </header>

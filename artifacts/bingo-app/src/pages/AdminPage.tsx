@@ -210,7 +210,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <h1 className="font-condensed" style={{ fontSize: 26, fontWeight: 800, color: '#D4A017', letterSpacing: '0.06em', marginBottom: 6 }}>
           ADMIN PANEL
         </h1>
-        <p style={{ fontSize: 12, color: '#666', marginBottom: 28 }}>መልካም Bingo · አስተዳዳሪ</p>
+        <p style={{ fontSize: 12, color: '#666', marginBottom: 28 }}>Gladiators Bingo · Admin</p>
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <input
             type="password" placeholder="ፓስወርድ ያስገቡ…" value={pw}
@@ -1514,7 +1514,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
           <h1 className="font-condensed" style={{ fontSize: 20, fontWeight: 800, color: '#D4A017', margin: 0, letterSpacing: '0.06em' }}>
             🛡 ADMIN PANEL
           </h1>
-          <p style={{ fontSize: 10, color: '#555', margin: 0 }}>መልካም Bingo</p>
+          <p style={{ fontSize: 10, color: '#555', margin: 0 }}>Gladiators Bingo</p>
         </div>
         <button
           onClick={onLogout}
