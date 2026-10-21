@@ -344,7 +344,7 @@ bot.command("start", async (ctx) => {
     ],
     [
       { text: "📣 Join Channel", url: joinChannelUrl },
-      { text: "📢 Bonus Group", url: "https://t.me/+Zfrt1VTjNbxmNDhi" },
+      { text: "📢 Bonus Group", url: "https://t.me/gladiatorsbonus" },
     ],
     // Admin button — only visible to the designated main admin
     ...(MAIN_ADMIN_TELEGRAM_ID > 0 && user.id === MAIN_ADMIN_TELEGRAM_ID
@@ -434,7 +434,7 @@ bot.command("start", async (ctx) => {
         ],
         [
           { text: "📣 Join Channel", url: CHANNEL_ID ? channelJoinUrl(CHANNEL_ID) : "https://t.me/melkambingo" },
-          { text: "📢 Bonus Group", url: "https://t.me/+Zfrt1VTjNbxmNDhi" },
+          { text: "📢 Bonus Group", url: "https://t.me/gladiatorsbonus" },
         ],
       ];
       await ctx.reply(
