@@ -1,7 +1,7 @@
 import { Router, type IRouter, type Request, type Response } from "express";
 import { logger } from "../lib/logger";
 import { processSmsDeposit } from "../lib/autoDeposit";
-import { bot } from "../lib/bot";
+import { bot, grantAgentDepositCommission, grantDepositorBonus, grantInviteBonus } from "../lib/bot";
 
 const router: IRouter = Router();
 
@@ -41,7 +41,12 @@ router.post("/sms/forward", async (req: Request, res: Response) => {
   try {
     const result = await processSmsDeposit(smsText);
 
-    if (result.credited && result.telegramId) {
+    if (result.credited && result.newlyCredited && result.telegramId) {
+      await Promise.all([
+        grantInviteBonus(result.telegramId, result.amount ?? 0),
+        grantAgentDepositCommission(result.telegramId, result.amount ?? 0),
+        grantDepositorBonus(result.telegramId, result.amount ?? 0),
+      ]);
       const adminId = Number(process.env["ADMIN_TELEGRAM_ID"] ?? "0");
       try {
         await bot.api.sendMessage(

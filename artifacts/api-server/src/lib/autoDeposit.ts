@@ -199,6 +199,7 @@ export async function processSmsDeposit(smsText: string): Promise<{
   code: string | null;
   amount: number | null;
   credited: boolean;
+  newlyCredited: boolean;
   telegramId?: number;
 }> {
   const code = extractTransactionCode(smsText);
@@ -206,7 +207,7 @@ export async function processSmsDeposit(smsText: string): Promise<{
 
   if (!code) {
     logger.warn({ smsText: smsText.slice(0, 100) }, "Could not extract code from SMS");
-    return { code: null, amount, credited: false };
+    return { code: null, amount, credited: false, newlyCredited: false };
   }
 
   try {
@@ -219,22 +220,29 @@ export async function processSmsDeposit(smsText: string): Promise<{
     if (existing.length > 0) {
       const row = existing[0]!;
       if (row.status === "credited") {
-        return { code, amount, credited: true, telegramId: row.telegramId ?? undefined };
+        return { code, amount, credited: true, newlyCredited: false, telegramId: row.telegramId ?? undefined };
       }
 
       if (row.status === "pending_bot" && row.telegramId) {
         const creditAmount = amount ?? Number(row.amountRequested ?? 0);
-        await db.update(autoDepositsTable).set({
+        const updated = await db.update(autoDepositsTable).set({
           amount: `${creditAmount}`,
           smsRaw: smsText,
           smsReceivedAt: new Date(),
           status: "credited",
           creditedAt: new Date(),
-        }).where(eq(autoDepositsTable.id, row.id));
+        }).where(and(
+          eq(autoDepositsTable.id, row.id),
+          eq(autoDepositsTable.status, "pending_bot"),
+        )).returning({ id: autoDepositsTable.id });
+
+        if (!updated.length) {
+          return { code, amount: creditAmount, credited: false, newlyCredited: false };
+        }
 
         await creditPlayerBalance(row.telegramId, creditAmount, `Auto-deposit: ${code}`);
         logger.info({ telegramId: row.telegramId, creditAmount, code }, "Auto deposit credited (SMS matched)");
-        return { code, amount: creditAmount, credited: true, telegramId: row.telegramId };
+        return { code, amount: creditAmount, credited: true, newlyCredited: true, telegramId: row.telegramId };
       }
 
       await db.update(autoDepositsTable).set({
@@ -243,7 +251,7 @@ export async function processSmsDeposit(smsText: string): Promise<{
         amount: amount ? `${amount}` : null,
       }).where(eq(autoDepositsTable.id, row.id));
 
-      return { code, amount, credited: false };
+      return { code, amount, credited: false, newlyCredited: false };
     }
 
     await db.insert(autoDepositsTable).values({
@@ -254,10 +262,10 @@ export async function processSmsDeposit(smsText: string): Promise<{
       status: "pending_sms",
     }).onConflictDoNothing();
 
-    return { code, amount, credited: false };
+    return { code, amount, credited: false, newlyCredited: false };
   } catch (err) {
     logger.error({ err, code }, "processSmsDeposit error");
-    return { code, amount, credited: false };
+    return { code, amount, credited: false, newlyCredited: false };
   }
 }
 

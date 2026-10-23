@@ -20,13 +20,16 @@ export interface Player {
  * Throws on server/network errors.
  */
 export async function fetchTelegramPlayer(): Promise<Player | null> {
-  const twa = (window as Window & { Telegram?: { WebApp?: { initData?: string } } }).Telegram?.WebApp
+  const twa = (window as Window & {
+    Telegram?: { WebApp?: { initData?: string; initDataUnsafe?: { start_param?: string } } }
+  }).Telegram?.WebApp
   if (!twa?.initData) return null
 
+  const startParam = twa.initDataUnsafe?.start_param ?? new URLSearchParams(window.location.search).get('startapp')
   const res = await fetch('/api/auth/telegram', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ initData: twa.initData }),
+    body: JSON.stringify({ initData: twa.initData, startParam }),
   })
 
   if (!res.ok) {
