@@ -222,8 +222,8 @@ bot.command("start", async (ctx) => {
   const membership = await checkChannelMembership(user.id);
   if (!membership.ok) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 ቻናሉን ይቀላቀሉ`, url: channelJoinUrl(ch) }]);
-    joinRows.push([{ text: "✅ ተቀላቀልኩ", callback_data: `chk_${user.id}` }]);
+    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 Join Channel`, url: channelJoinUrl(ch) }]);
+    joinRows.push([{ text: "✅ Verify Membership", callback_data: `chk_${user.id}` }]);
     await ctx.reply(
       `👋 ሰላም ${user.first_name}!\n\n` +
       `🔒 <b>ጨዋታ ለመጀመር ቅድሚያ ቻናሎቻችንን ይቀላቀሉ:</b>\n\n` +
@@ -299,6 +299,7 @@ bot.command("start", async (ctx) => {
     }
   } catch (err) {
     logger.error({ err, telegramId: user.id }, "Failed to upsert player on /start");
+    await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ ጊዜያዊ ችግር ላይ ነው። መለያዎ አልተመዘገበም፤ ቆይተው /start ን እንደገና ይሞክሩ።");
   }
 
   // Remove any lingering persistent reply keyboard silently
@@ -320,22 +321,22 @@ bot.command("start", async (ctx) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const startKb: any[][] = [
     [
-      ...(playUrl ? [{ text: "🎮 Play Game (ክፈት)", web_app: { url: playUrl } }] : [{ text: "🎮 Play Game (ክፈት)", callback_data: `cmd_noplay_${user.id}` }]),
+      ...(playUrl ? [{ text: "🎮 Play Game", web_app: { url: playUrl } }] : [{ text: "🎮 Play Game", callback_data: `cmd_noplay_${user.id}` }]),
     ],
     [
-      { text: "🏦 Add Funds (ገቢ)", callback_data: `cmd_deposit_${user.id}` },
-      { text: "💵 Cash Out (ወጪ)", callback_data: `cmd_withdraw_${user.id}` },
+      { text: "🏦 Add Funds", callback_data: `cmd_deposit_${user.id}` },
+      { text: "💵 Cash Out", callback_data: `cmd_withdraw_${user.id}` },
     ],
     [
-      { text: "📊 My Balance (ቀሪ ሂሳብ)", callback_data: `cmd_balance_${user.id}` },
-      { text: "🤝 Refer & Earn (ይጋብዙ)", callback_data: `cmd_invite_${user.id}` },
+      { text: "📊 My Balance", callback_data: `cmd_balance_${user.id}` },
+      { text: "🤝 Refer & Earn", callback_data: `cmd_invite_${user.id}` },
     ],
     [
-      { text: "📜 How to Play (መመሪያ)", callback_data: `cmd_howtoplay_${user.id}` },
-      { text: "🎧 Support (እርዳታ)", callback_data: `cmd_support_${user.id}` },
+      { text: "📜 How to Play", callback_data: `cmd_howtoplay_${user.id}` },
+      { text: "🎧 Support", callback_data: `cmd_support_${user.id}` },
     ],
     [
-      { text: "👤 Register (መመዝገቢያ)", callback_data: `cmd_register_${user.id}` },
+      { text: "👤 Register", callback_data: `cmd_register_${user.id}` },
     ],
     [
       { text: "🎟 Promo Code", callback_data: `cmd_promo_${user.id}` },
@@ -343,7 +344,7 @@ bot.command("start", async (ctx) => {
     ],
     [
       { text: "📣 Join Channel", url: joinChannelUrl },
-      { text: "📢 Bonus Group", url: "https://t.me/+Zfrt1VTjNbxmNDhi" },
+      { text: "📢 Bonus Group", url: "https://t.me/gladiatorsbonus" },
     ],
     // Admin button — only visible to the designated main admin
     ...(MAIN_ADMIN_TELEGRAM_ID > 0 && user.id === MAIN_ADMIN_TELEGRAM_ID
@@ -353,7 +354,7 @@ bot.command("start", async (ctx) => {
 
   // Full welcome text (for plain text messages — up to 4096 chars)
   const welcomeText =
-    `🎱 <b>እንኳን ወደ Melbet BINGO መጡ!</b>\n\n` +
+    `🎱 <b>እንኳን ወደ Gladiators Bingo መጡ!</b>\n\n` +
     `🎮 <b>ለጀማሪዎች — እንዴት ይጀምሩ?</b>\n` +
     `1️⃣ <b>👤 Register</b> — አካዉንት ይክፈቱ\n` +
     `2️⃣ <b>🏦 Add Funds</b> — ከ10ብር ጀምሮ ያስገቡ\n` +
@@ -370,7 +371,7 @@ bot.command("start", async (ctx) => {
 
   // Short caption for photo messages (Telegram limit: 1024 chars)
   const welcomeCaption =
-    `🎱 <b>እንኳን ወደ Melbet BINGO መጡ!</b>\n\n` +
+    `🎱 <b>እንኳን ወደ Gladiators Bingo መጡ!</b>\n\n` +
     `1️⃣ 👤 Register — አካዉንት ይክፈቱ\n` +
     `2️⃣ 🏦 Add Funds — ከ10ብር ጀምሮ ያስገቡ\n` +
     `3️⃣ 🎮 Play Game — ጨዋታ ይጀምሩ!\n\n` +
@@ -413,31 +414,31 @@ bot.command("start", async (ctx) => {
     logger.error({ err: startErr, telegramId: user.id }, "/start handler error — sending fallback");
     try {
       const fallbackKb = [
-        [{ text: "🎮 Play Game (ክፈት)", callback_data: `cmd_noplay_${user.id}` }],
+        [{ text: "🎮 Play Game", callback_data: `cmd_noplay_${user.id}` }],
         [
-          { text: "🏦 Add Funds (ገቢ)", callback_data: `cmd_deposit_${user.id}` },
-          { text: "💵 Cash Out (ወጪ)", callback_data: `cmd_withdraw_${user.id}` },
+          { text: "🏦 Add Funds", callback_data: `cmd_deposit_${user.id}` },
+          { text: "💵 Cash Out", callback_data: `cmd_withdraw_${user.id}` },
         ],
         [
-          { text: "📊 My Balance (ቀሪ ሂሳብ)", callback_data: `cmd_balance_${user.id}` },
-          { text: "🤝 Refer & Earn (ይጋብዙ)", callback_data: `cmd_invite_${user.id}` },
+          { text: "📊 My Balance", callback_data: `cmd_balance_${user.id}` },
+          { text: "🤝 Refer & Earn", callback_data: `cmd_invite_${user.id}` },
         ],
         [
-          { text: "📜 How to Play (መመሪያ)", callback_data: `cmd_howtoplay_${user.id}` },
-          { text: "🎧 Support (እርዳታ)", callback_data: `cmd_support_${user.id}` },
+          { text: "📜 How to Play", callback_data: `cmd_howtoplay_${user.id}` },
+          { text: "🎧 Support", callback_data: `cmd_support_${user.id}` },
         ],
-        [{ text: "👤 Register (መመዝገቢያ)", callback_data: `cmd_register_${user.id}` }],
+        [{ text: "👤 Register", callback_data: `cmd_register_${user.id}` }],
         [
           { text: "🎟 Promo Code", callback_data: `cmd_promo_${user.id}` },
           { text: "🔄 Transfer", callback_data: `cmd_transfer_${user.id}` },
         ],
         [
           { text: "📣 Join Channel", url: CHANNEL_ID ? channelJoinUrl(CHANNEL_ID) : "https://t.me/melkambingo" },
-          { text: "📢 Bonus Group", url: "https://t.me/+Zfrt1VTjNbxmNDhi" },
+          { text: "📢 Bonus Group", url: "https://t.me/gladiatorsbonus" },
         ],
       ];
       await ctx.reply(
-        `🎱 <b>እንኳን ወደ Melbet BINGO መጡ!</b>\n\n👇 ቁልፍ ይምረጡ`,
+        `🎱 <b>እንኳን ወደ Gladiators Bingo መጡ!</b>\n\n👇 ቁልፍ ይምረጡ`,
         { parse_mode: "HTML", reply_markup: { inline_keyboard: fallbackKb } }
       );
     } catch { /* non-fatal */ }
@@ -453,8 +454,8 @@ bot.callbackQuery(/^chk_(\d+)$/, async (ctx) => {
   const membership = await checkChannelMembership(userId);
   if (!membership.ok) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 ቻናሉን ይቀላቀሉ`, url: channelJoinUrl(ch) }]);
-    joinRows.push([{ text: "✅ ተቀላቀልኩ", callback_data: `chk_${userId}` }]);
+    const joinRows: any[][] = membership.missing.map(ch => [{ text: `📢 Join Channel`, url: channelJoinUrl(ch) }]);
+    joinRows.push([{ text: "✅ Verify Membership", callback_data: `chk_${userId}` }]);
     await ctx.editMessageText(
       `⚠️ አሁንም ቻናሉን አልተቀላቀሉም።\n\n` +
       membership.missing.map(ch => `• ${ch}`).join("\n") +
@@ -487,14 +488,9 @@ bot.callbackQuery(/^cmd_withdraw_(\d+)$/, async (ctx) => {
     const mainBalance = Number(rows[0]!.mainBalance);
     const bonusBalance = Number(rows[0]!.bonusBalance);
 
-    // Lifetime deposit requirement: at least one approved deposit >= 50 ETB for any withdrawal.
+    // Lifetime deposit requirement: at least one approved deposit >= 100 ETB for any withdrawal.
     if (!(await hasLifetimeDeposit(userId, WITHDRAW_MIN_DEPOSIT))) {
-      await ctx.reply(
-        `⛔ <b>ዊዝድሮው ማድረግ አይቻልም</b>\n\n` +
-        `ዊዝድሮው ለማድረግ ቢያንስ አንድ ጊዜ <b>${WITHDRAW_MIN_DEPOSIT} ብር ወይም ከዚያ በላይ</b> ዲፖዚት ማድረግ ያስፈልጋል።\n\n` +
-        `📌 ዲፖዚት ካደረጉ በኋላ ዊዝድሮው ማድረግ ይቻላል።`,
-        { parse_mode: "HTML" }
-      );
+      await ctx.reply(WITHDRAW_DEPOSIT_REQUIRED_MESSAGE, { parse_mode: "HTML" });
       return;
     }
 
@@ -548,8 +544,8 @@ bot.callbackQuery(/^cmd_balance_(\d+)$/, async (ctx) => {
       { parse_mode: "HTML" }
     );
   } catch (err) {
-    logger.error({ err }, "cmd_balance callback error");
-    await ctx.reply("❌ ስህተት ተፈጥሯል።");
+    logger.error({ err, telegramId: userId }, "cmd_balance callback error");
+    await ctx.reply("⚠️ ባላንስዎን ለማሳየት የዳታቤዝ አገልግሎቱ አሁን አይገኝም። ባላንስዎ አልተቀየረም፤ ቆይተው እንደገና ይሞክሩ።");
   }
 });
 
@@ -561,11 +557,11 @@ bot.callbackQuery(/^cmd_invite_(\d+)$/, async (ctx) => {
   if (!botUsername) { await ctx.reply("❌ ሊንክ ማምጣት አልተቻለም።"); return; }
   const inviteLink = `https://t.me/${botUsername}?start=ref_${userId}`;
   const firstName = ctx.from.first_name ?? "ወዳጆ";
-  const shareText = `🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
+  const shareText = `🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
   await ctx.reply(shareText, {
     reply_markup: {
-      inline_keyboard: [[{ text: "🔗 ሊንኩን ላክ (Share Link)", url: shareUrl }]],
+      inline_keyboard: [[{ text: "🔗 Share Invite Link", url: shareUrl }]],
     },
   });
 });
@@ -682,7 +678,7 @@ bot.callbackQuery(/^cmd_support_(\d+)$/, async (ctx) => {
     {
       parse_mode: "HTML",
       reply_markup: {
-        inline_keyboard: [[{ text: "💬 Support ይክፈቱ", url: supportUrl }]],
+        inline_keyboard: [[{ text: "💬 Open Support", url: supportUrl }]],
       },
     }
   );
@@ -731,7 +727,7 @@ bot.callbackQuery(/^cmd_howtoplay_(\d+)$/, async (ctx) => {
   if (ctx.from.id !== userId) return ctx.answerCallbackQuery();
   await ctx.answerCallbackQuery();
   await ctx.reply(
-    `📜 <b>የMelbet ቢንጎ ጨዋታ ህጎች</b>\n\n` +
+    `📜 <b>የ Gladiators Bingo ጨዋታ ህጎች</b>\n\n` +
     `🃏 <b>መጫወቻ ካርድ</b>\n\n` +
     `1. ጨዋታውን ለመጀመር ከሚመጣልን ከ1-500 የመጫወቻ ካርድ ውስጥ አንዱን እንመርጣለን።\n\n` +
     `2. የመጫወቻ ካርዱ ላይ በቀይ ቀለም የተመረጡ ቁጥሮች የሚያሳዩት መጫወቻ ካርድ በሌላ ተጫዋች መመረጡን ነው።\n\n` +
@@ -742,7 +738,7 @@ bot.callbackQuery(/^cmd_howtoplay_(\d+)$/, async (ctx) => {
     `2. ጨዋታው ሲጀመር የተለያዪ ቁጥሮች ከ1 እስከ 75 መጥራት ይጀምራል።\n\n` +
     `3. የሚጠራው ቁጥር የኛ መጫወቻ ካርድ ውስጥ ካለ ራሱ auto ማርክ ያረግልናል።\n\n` +
     `🏆 <b>አሸናፊ</b>\n\n` +
-    `1. ቁጥሮቹ ሲጠሩ ወደጎን ወይም ወደታች ወይም ወደሁለቱም አግዳሚ ወይም አራቱን ማእዘናት 1 መስመር ከሰራልን እናሸንፋለን።\n\n` +
+    `1. ቁጥሮች ሲጠሩ 2 ሙሉ መስመር ወይም 1 ሙሉ መስመር እና 4ቱንም የካርዱን ማዕዘኖች ያሟላ ተጫዋች ያሸንፋል።\n\n` +
     `2. ሁለት ወይም ከዚያ በላይ ተጫዋቾች እኩል ቢያሸንፉ ደራሹ ለቁጥራቸው ይካፈላል።`,
     { parse_mode: "HTML" }
   );
@@ -831,8 +827,8 @@ async function handleChannelBonusCheck(ctx: any) {
       {
         reply_markup: {
           inline_keyboard: [
-            [{ text: "📢 ቻናሉን ይቀላቀሉ", url: `https://t.me/${BONUS_CHANNEL_USERNAME.replace("@", "")}` }],
-            [{ text: "🔄 አባል ሆኛለሁ ቼክ አድርግ (Verify)", callback_data: `cmd_channel_verify_${userId}` }],
+            [{ text: "📢 Join Channel", url: `https://t.me/${BONUS_CHANNEL_USERNAME.replace("@", "")}` }],
+            [{ text: "🔄 Verify Membership", callback_data: `cmd_channel_verify_${userId}` }],
           ],
         },
       }
@@ -901,11 +897,11 @@ bot.command("invite", async (ctx) => {
   }
   const inviteLink = `https://t.me/${botUsername}?start=ref_${user.id}`;
   const firstName = user.first_name ?? "ወዳጆ";
-  const shareText = `🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
-  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Melbet BINGO ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
+  const shareText = `🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!\n\n${inviteLink}`;
+  const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(`🎁 ${firstName} ወደ Gladiators Bingo ወዳጅ ዘመድ ይጋበዙ እና ሸልማቶችን ያግኙ!`)}`;
   await ctx.reply(shareText, {
     reply_markup: {
-      inline_keyboard: [[{ text: "🔗 ሊንኩን ላክ (Share Link)", url: shareUrl }]],
+      inline_keyboard: [[{ text: "🔗 Share Invite Link", url: shareUrl }]],
     },
   });
 });
@@ -994,14 +990,9 @@ bot.command("withdraw", async (ctx) => {
     const mainBalance = Number(rows[0]!.mainBalance);
     const bonusBalance = Number(rows[0]!.bonusBalance);
 
-    // Lifetime deposit requirement: at least one approved deposit >= 50 ETB for any withdrawal.
+    // Lifetime deposit requirement: at least one approved deposit >= 100 ETB for any withdrawal.
     if (!(await hasLifetimeDeposit(user.id, WITHDRAW_MIN_DEPOSIT))) {
-      await ctx.reply(
-        `⛔ <b>ዊዝድሮው ማድረግ አይቻልም</b>\n\n` +
-        `ዊዝድሮው ለማድረግ ቢያንስ አንድ ጊዜ <b>${WITHDRAW_MIN_DEPOSIT} ብር ወይም ከዚያ በላይ</b> ዲፖዚት ማድረግ ያስፈልጋል።\n\n` +
-        `📌 ዲፖዚት ካደረጉ በኋላ ዊዝድሮው ማድረግ ይቻላል።`,
-        { parse_mode: "HTML" }
-      );
+      await ctx.reply(WITHDRAW_DEPOSIT_REQUIRED_MESSAGE, { parse_mode: "HTML" });
       return;
     }
 
@@ -1048,7 +1039,7 @@ bot.command("pending", async (ctx) => {
       .limit(20);
     if (!deposits.length) { await ctx.reply("✅ አሁን የሚጠባበቅ deposit የለም።"); return; }
     for (const dep of deposits) {
-      const kb = new InlineKeyboard().text("✅ አፀድቅ", `approve_${dep.id}`).text("❌ ሰርዝ", `reject_${dep.id}`);
+      const kb = new InlineKeyboard().text("✅ Approve", `approve_${dep.id}`).text("❌ Reject", `reject_${dep.id}`);
       await ctx.reply(
         `📥 <b>Deposit #${dep.id}</b>\n👤 ${dep.firstName} (${dep.telegramId})\n💰 <b>${Number(dep.amount).toFixed(0)} ብር</b>\n` +
         (dep.confirmationText ? `📝 Confirmation:\n<code>${dep.confirmationText}</code>` : ""),
@@ -1071,7 +1062,7 @@ bot.command("pendingwithdraw", async (ctx) => {
       .limit(20);
     if (!withdrawals.length) { await ctx.reply("✅ አሁን የሚጠባበቅ withdraw የለም።"); return; }
     for (const w of withdrawals) {
-      const kb = new InlineKeyboard().text("✅ ልከዋለሁ", `approvew_${w.id}`).text("❌ ሰርዝ", `rejectw_${w.id}`);
+      const kb = new InlineKeyboard().text("✅ Mark Paid", `approvew_${w.id}`).text("❌ Reject", `rejectw_${w.id}`);
       await ctx.reply(
         `📤 <b>Withdrawal #${w.id}</b>\n👤 ${w.firstName} (${w.telegramId})\n💸 <b>${Number(w.amount).toFixed(0)} ብር</b>\n📞 Telebirr: <code>${w.phone}</code>\n🏷 አካውንት ሆልደር: <b>${w.accountName || "—"}</b>`,
         { parse_mode: "HTML", reply_markup: kb }
@@ -1492,7 +1483,7 @@ bot.on("message:text", async (ctx) => {
       {
         parse_mode: "HTML",
         reply_markup: {
-          inline_keyboard: [[{ text: "🔐 Admin Panel ይክፈቱ", web_app: { url: adminUrl } }]],
+          inline_keyboard: [[{ text: "🔐 Open Admin Panel", web_app: { url: adminUrl } }]],
         },
       }
     );
@@ -1639,8 +1630,13 @@ bot.on("message:text", async (ctx) => {
       return;
     }
     if (depSession.step === "confirm") {
-      const retry = await handleDepositConfirmation(ctx as any, user.id, user.first_name, depSession.amount, text);
-      if (!retry) depositSessions.delete(user.id);
+      try {
+        const retry = await handleDepositConfirmation(ctx as any, user.id, user.first_name, depSession.amount, text);
+        if (!retry) depositSessions.delete(user.id);
+      } catch (err) {
+        logger.error({ err, telegramId: user.id }, "Deposit confirmation unavailable");
+        await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ አሁን አይገኝም። አዲስ ክፍያ አይፈጽሙ፤ ተመሳሳይ የTelebirr ትራንዛክሽን ኮድዎን ከጥቂት ጊዜ በኋላ እንደገና ይላኩ።");
+      }
       return;
     }
   }
@@ -1786,6 +1782,11 @@ async function handleDepositConfirmation(
     return false;
   }
 
+  if (autoResult.status === "failed") {
+    await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ አሁን አይገኝም። አዲስ ክፍያ አይፈጽሙ፤ ይህንኑ የTelebirr ኮድ ከጥቂት ጊዜ በኋላ እንደገና ይሞክሩ።");
+    return true;
+  }
+
   if (autoResult.status === "duplicate") {
     await ctx.reply(
       `⚠️ <b>ይህ ኮድ አስቀድሞ ጥቅም ላይ ውሏል</b>\n\n🔖 <code>${code}</code>\n\nስህተት ከሆነ አድሚንን ያነጋግሩ።`,
@@ -1811,7 +1812,7 @@ async function handleDepositConfirmation(
     );
 
     if (ADMIN_ID) {
-      const kb = new InlineKeyboard().text("✅ አፀድቅ", `approve_${depId}`).text("❌ ሰርዝ", `reject_${depId}`);
+      const kb = new InlineKeyboard().text("✅ Approve", `approve_${depId}`).text("❌ Reject", `reject_${depId}`);
       await bot.api.sendMessage(
         ADMIN_ID,
         `📥 <b>Deposit #${depId}</b>\n👤 ${firstName} (${telegramId})\n💰 <b>${amount} ብር</b>\n🔖 ኮድ: <code>${code}</code>`,
@@ -1820,8 +1821,9 @@ async function handleDepositConfirmation(
     }
     logger.info({ telegramId, amount, depId, code }, "Deposit submitted (pending)");
   } catch (err) {
-    logger.error({ err }, "deposit confirmation error");
-    await ctx.reply("❌ ስህተት ተፈጥሯል። እንደገና ይሞክሩ።");
+    logger.error({ err, telegramId }, "deposit confirmation error");
+    await ctx.reply("⚠️ የዳታቤዝ አገልግሎቱ አሁን አይገኝም። አዲስ ክፍያ አይፈጽሙ፤ ይህንኑ የTelebirr ኮድ ከጥቂት ጊዜ በኋላ እንደገና ይሞክሩ።");
+    return true;
   }
   return false;
 }
@@ -1842,9 +1844,9 @@ export function buildBoxKeyboard(
       const boxNum = j + 1;
       const claimedBy = claimedMap.get(boxNum);
       if (claimedBy) {
-        row.push({ text: `✅ ${claimedBy.slice(0, 10)}`, callback_data: `lbxt_${sessionId}_${boxNum}` });
+        row.push({ text: `✅ #${boxNum} Taken`, callback_data: `lbxt_${sessionId}_${boxNum}` });
       } else {
-        row.push({ text: `🎁 ${amountPerBox} ብር`, callback_data: `lbox_${sessionId}_${boxNum}` });
+        row.push({ text: `🎁 ${amountPerBox} ETB`, callback_data: `lbox_${sessionId}_${boxNum}` });
       }
     }
     rows.push(row);
@@ -1867,8 +1869,8 @@ export function buildResultsMessage(
   }
   text += `\n💵 <b>ጠቅላላ ተሰራጨ: ${total.toFixed(0)} ብር</b>\n\n`;
   text += `🎉 <b>እንኳን ደስ አላቹ! ሁሉም Lucky Box ተወስዷል!</b>\n`;
-  text += `💫 ቀጣዩ Lucky Box ለማያዣዘው — መልካም BINGO ጨዋታ ተቀላቀሉ!\n`;
-  text += `🎱 <i>መልካም Bingo — ዛሬም ይጫወቱ!</i>`;
+  text += `💫 ቀጣዩ Lucky Box ለማያዣዘው — Gladiators Bingo ጨዋታ ተቀላቀሉ!\n`;
+  text += `🎱 <i>Gladiators Bingo — ዛሬም ይጫወቱ!</i>`;
   return text;
 }
 
@@ -1954,7 +1956,7 @@ bot.callbackQuery(/^lbox_(\d+)_(\d+)$/, async (ctx) => {
     // Notify user via private message
     try {
       await bot.api.sendMessage(user.id,
-        `🎁 <b>Lucky Box ዕድለኛ ሆኑ!</b>\n\n💰 <b>${amount} ብር</b> ወደ ዋሌትዎ ተጨምሯል!\n\n🎱 <i>መልካም Bingo — ይጫወቱ ይዝናኑ!</i>`,
+        `🎁 <b>Lucky Box ዕድለኛ ሆኑ!</b>\n\n💰 <b>${amount} ብር</b> ወደ ዋሌትዎ ተጨምሯል!\n\n🎱 <i>Gladiators Bingo — ይጫወቱ ይዝናኑ!</i>`,
         { parse_mode: "HTML" }
       );
     } catch { /* non-fatal */ }
@@ -1971,7 +1973,7 @@ bot.callbackQuery(/^lbox_(\d+)_(\d+)$/, async (ctx) => {
           const miniAppUrl = (process.env["MINI_APP_URL"] ?? _botDomain)?.trim() || null;
           const playUrl = miniAppUrl ? `https://${miniAppUrl}` : null;
           const resultKb = botUsername && playUrl
-            ? { inline_keyboard: [[{ text: "🎱 መልካም BINGO — Play NOW", web_app: { url: playUrl } }]] }
+            ? { inline_keyboard: [[{ text: "🎱 Play Bingo Now", web_app: { url: playUrl } }]] }
             : { inline_keyboard: [] };
 
           if (session.imageBase64) {
@@ -2003,9 +2005,15 @@ bot.callbackQuery(/^lbox_(\d+)_(\d+)$/, async (ctx) => {
 });
 
 // Minimum general lifetime deposit required for any withdrawal.
-const WITHDRAW_MIN_DEPOSIT = 50;
+const WITHDRAW_MIN_DEPOSIT = 100;
 // Minimum lifetime deposit required to make the bonus balance withdrawable.
 const BONUS_WITHDRAW_MIN_DEPOSIT = 100;
+const WITHDRAW_DEPOSIT_REQUIRED_MESSAGE =
+  `⚠️ <b>የወጪ ማድረጊያ (Withdrawal) መመሪያ</b>\n\n` +
+  `የወጪ ማድረጊያ አገልግሎት የሚነቃቃው የመጀመሪያ ዲፖዚት ሲፈጸም ብቻ ነው።\n\n` +
+  `👉 ማድረግ የሚጠበቅብዎት፦\n\n` +
+  `<b>${WITHDRAW_MIN_DEPOSIT} ብር እና ከዚያ በላይ</b> ዲፖዚት ማድረግ።\n\n` +
+  `ዲፖዚትዎ ከተፈቀደ በኋላ ማውጣት የሚችሉት ባላንስ 100 ብር ወይም ከዚያ በላይ ከሆነ ዊዝድሮው ማድረግ ይችላሉ። ✨`;
 
 // Returns true if the player has at least one approved deposit >= minAmount (lifetime).
 async function hasLifetimeDeposit(telegramId: number, minAmount: number): Promise<boolean> {
@@ -2031,23 +2039,8 @@ async function handleWithdrawRequest(
   accountName: string
 ) {
   try {
-    // Lifetime deposit requirement: at least one approved deposit >= 50 ETB
-    const qualifyingDeposit = await db
-      .select({ id: pendingDepositsTable.id })
-      .from(pendingDepositsTable)
-      .where(and(
-        eq(pendingDepositsTable.telegramId, telegramId),
-        eq(pendingDepositsTable.status, "approved"),
-        sql`${pendingDepositsTable.amount}::numeric >= 50`
-      ))
-      .limit(1);
-    if (!qualifyingDeposit.length) {
-      await ctx.reply(
-        `⛔ <b>ዊዝድሮው ማድረግ አይቻልም</b>\n\n` +
-        `ዊዝድሮው ለማድረግ ቢያንስ አንድ ጊዜ <b>50 ብር ወይም ከዚያ በላይ</b> ዲፖዚት ማድረግ ያስፈልጋል።\n\n` +
-        `📌 ዲፖዚት ካደረጉ በኋላ ዊዝድሮው ማድረግ ይቻላል።`,
-        { parse_mode: "HTML" }
-      );
+    if (!(await hasLifetimeDeposit(telegramId, WITHDRAW_MIN_DEPOSIT))) {
+      await ctx.reply(WITHDRAW_DEPOSIT_REQUIRED_MESSAGE, { parse_mode: "HTML" });
       withdrawSessions.delete(telegramId);
       return;
     }
@@ -2125,7 +2118,7 @@ async function handleWithdrawRequest(
       { parse_mode: "HTML" }
     );
     if (ADMIN_ID) {
-      const kb = new InlineKeyboard().text("✅ ልከዋለሁ", `approvew_${wId}`).text("❌ ሰርዝ", `rejectw_${wId}`);
+      const kb = new InlineKeyboard().text("✅ Mark Paid", `approvew_${wId}`).text("❌ Reject", `rejectw_${wId}`);
       await bot.api.sendMessage(
         ADMIN_ID,
         `📤 <b>አዲስ Withdrawal #${wId}</b>\n` +

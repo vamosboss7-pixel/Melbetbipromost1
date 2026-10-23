@@ -14,12 +14,6 @@ export function getGameEngine(): GameEngine | null {
   return gameEngine10;
 }
 
-export async function initGameEngines(): Promise<void> {
-  if (gameEngine10) {
-    await gameEngine10.initJackpotPool();
-  }
-}
-
 export function getGameEngine5(): GameEngine | null {
   return null;
 }
@@ -39,8 +33,9 @@ export function setupGameSocket(httpServer: HttpServer) {
   bingo10Ns.on("connection", (socket) => {
     logger.info({ socketId: socket.id }, "Bingo10 socket connected");
 
-    socket.on("join_room", (data: { telegramId: number; firstName: string }) => {
-      void gameEngine10?.handleJoin(socket, data);
+    socket.on("join_room", async (data: { telegramId: number; firstName: string }, acknowledge?: (joined: boolean) => void) => {
+      const joined = await gameEngine10?.handleJoin(socket, data) ?? false;
+      acknowledge?.(joined);
     });
 
     socket.on("select_card", (cardId: number) => {
@@ -51,8 +46,8 @@ export function setupGameSocket(httpServer: HttpServer) {
       void gameEngine10?.handleDeselectCard(socket, cardId);
     });
 
-    socket.on("claim_bingo", (data: { roundId: string; cardId: number; card: number[][] }) => {
-      gameEngine10?.handleClaimBingo(socket, data);
+    socket.on("claim_bingo", (data: { roundId: string; cardId: number; card?: number[][] }, acknowledge?: (accepted: boolean) => void) => {
+      acknowledge?.(gameEngine10?.handleClaimBingo(socket, data) ?? false);
     });
 
     socket.on("disconnect", () => {

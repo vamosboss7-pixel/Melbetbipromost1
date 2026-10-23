@@ -11,7 +11,7 @@ function getPlayNowKeyboard(): InlineKeyboard | null {
   const miniAppUrl = process.env["MINI_APP_URL"] ?? process.env["REPLIT_DOMAINS"]?.split(",")[0];
   if (!miniAppUrl) return null;
   const appUrl = `https://${miniAppUrl}`;
-  return new InlineKeyboard().add({ text: "🎮 ጨዋታ ጀምር", web_app: { url: appUrl } });
+  return new InlineKeyboard().add({ text: "🎮 Play Bingo", web_app: { url: appUrl } });
 }
 
 async function fireBroadcast(id: number, message: string, imageData: string | null) {
@@ -48,16 +48,11 @@ const DAILY_BONUS_IMAGE_PATH = path.join(
 );
 
 const DAILY_BONUS_MESSAGE =
-  `🔥🎉 <b>ዛሬ  የ1 ጨዋታ ቦነስ ለእርሶ !</b> 🎉🔥\n\n` +
-  `🎁 <b>አንድ ጨዋታ 10 ብር ቦነስ</b> ይውሰዱና እድልዎን ይሞክሩ!\n\n` +
-  `🏆 <b>MelBet BINGO</b> በአጭር ጊዜ ውስጥ የብዙዎችን ቀልብ እየገዛ  ያለ ተወዳጅ የቢንጎ መድረክ ሆኗል። አሁኑኑ ይቀላቀሉ!\n\n` +
-  `✨ <b>የዛሬ ቦነሶች</b>\n` +
-  `🎁 ለአዲስ ተጫዋቾች – <b>20 ብር በቀጥታ ቦነስ</b>\n` +
-  `💸 ጓደኛ ሲጋብዙ – <b>ተጨማሪ ቦነስ </b>\n` +
-  `👥 በየቀኑ አዳዲስ ተጫዋቾች እየተቀላቀሉ ነው\n\n` +
-  `መልካም እድል 😎\n\n` +
-  `🏅 ብዙዎች በየቀኑ እያሸነፉ ነው — <b>ቀጣዩ አሸናፊ እርስዎ ሊሆኑ ይችላሉ!</b>\n\n` +
-  `🚀 <b>ዛሬውኑ ቦነስዎን ይውሰዱ፣ ይጫወቱ፣ ትልቅ ሽልማት ያሸንፉ!</b> 🎊`;
+  `🎉 ዛሬ የዕድል ቀንዎ ነው! 🎉 10 ብር ነፃ ይውሰዱ\n\n` +
+  `ከ Gladiators Bingo የተበረከተ የ 10 ብር (የ1 ጨዋታ) ቦነስ ይውሰዱ!\n\n` +
+  `➕ ለአዲስ ተመዝጋቢዎች 20 ብር ተጨማሪ ስጦታ!\n` +
+  `👥 ጓደኛ በመጋበዝ ተጨማሪ ቦነስ ያግኙ!\n\n` +
+  `🔥 አሁኑኑ ይጫወቱ፣ ትልቅ ሽልማቶችን በየቀኑ ከሚያሸንፉት ጋር ይቀላቀሉ! መልካም እድል! 😎🎯`;
 
 async function fireDailyPlayBonus(today: string) {
   const players = await db
@@ -73,7 +68,7 @@ async function fireDailyPlayBonus(today: string) {
   for (const p of players) {
     try {
       const kb = new InlineKeyboard().add({
-        text: "🎁 ቦነስ ይውሰዱ",
+        text: "🎁 Claim Bonus",
         callback_data: `claim_dpb_${p.telegramId}`,
       });
       if (imageBuffer) {

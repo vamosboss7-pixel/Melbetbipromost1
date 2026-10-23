@@ -2,7 +2,7 @@ import { useLocation } from 'wouter'
 import { usePlayer } from '../context/PlayerContext'
 import { useGameReconnect } from '../hooks/useGameReconnect'
 
-const LANDING_IMAGE = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/65f26669-43dc-4335-8306-c3da27e505c3-8MKl9kZkZK41SgVKsBhusEWi7CgtNz.png'
+const LANDING_IMAGE = 'https://cdn.builder.io/api/v1/image/assets%2F59e42ef7b70445faa7fc61357edc6f12%2F4516cce5bec04aee97032e7e53989d24?format=webp&width=800&height=1200'
 
 export default function LobbyPage() {
   const [, navigate] = useLocation()
@@ -18,18 +18,18 @@ export default function LobbyPage() {
         height: '100dvh',
         minHeight: '100vh',
         overflow: 'hidden',
-        background: '#031b14',
+        background: '#090806',
       }}
     >
       <img
         src={LANDING_IMAGE}
-        alt="Melbit Bingo landing page with game features, winning rules, and an Enter Game call to action"
+        alt="Gladiators Bingo landing page"
         style={{
           display: 'block',
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          objectPosition: 'center top',
+          objectPosition: 'center',
         }}
       />
       <button
@@ -38,9 +38,9 @@ export default function LobbyPage() {
         onClick={() => navigate('/slots')}
         style={{
           position: 'absolute',
-          top: '80.5%',
-          left: '14%',
-          width: '72%',
+          top: '86%',
+          left: '13%',
+          width: '74%',
           height: '8%',
           border: 0,
           borderRadius: 999,

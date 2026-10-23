@@ -7,16 +7,13 @@ import { usePlayer } from '../context/PlayerContext'
 interface GameState {
   phase: 'waiting' | 'playing' | 'finished'
   countdown: number
-  playersWithCards: number
   playerCount: number
-  netPrizePool: number
   stakePerCard?: number
 }
 
 export default function SlotSelectionPage() {
   const [, navigate] = useLocation()
   const [selectedSlots, setSelectedSlots] = useState<number[]>([])
-  const [jackpotPool, setJackpotPool] = useState<string>('0.00')
   const [stakePerCard, setStakePerCard] = useState<number>(0)
   const [showNoBalance, setShowNoBalance] = useState(false)
   const { player, refresh } = usePlayer()
@@ -26,9 +23,9 @@ export default function SlotSelectionPage() {
   // ── Server-side state ─────────────────────────────────────────────────────
   const [serverCountdown, setServerCountdown] = useState<number>(30)
   const [gamePhase, setGamePhase] = useState<GameState['phase']>('waiting')
-  const [totalCards, setTotalCards] = useState<number>(0)
-  const [netPrizePool, setNetPrizePool] = useState<number>(0)
+  const [playerCount, setPlayerCount] = useState<number>(0)
   const [takenCards, setTakenCards] = useState<Set<number>>(new Set())
+  const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const playerRef = useRef(player)
   const selectedSlotsRef = useRef(selectedSlots)
@@ -55,14 +52,13 @@ export default function SlotSelectionPage() {
       if (p) socket.emit('join_room', { telegramId: p.telegramId, firstName: p.firstName })
     }
 
-    socket.on('connect', emitJoin)
+    socket.on('connect', () => { setConnected(true); emitJoin() })
+    socket.on('disconnect', () => setConnected(false))
 
-    socket.on('game_state', (state: GameState & { jackpotPool?: number }) => {
+    socket.on('game_state', (state: GameState) => {
       setServerCountdown(state.countdown)
       setGamePhase(state.phase)
-      setTotalCards(state.playersWithCards ?? 0)
-      setNetPrizePool(state.netPrizePool ?? 0)
-      if (state.jackpotPool != null) setJackpotPool(Number(state.jackpotPool).toFixed(2))
+      setPlayerCount(state.playerCount ?? 0)
     })
 
     socket.on('balance_update', (data: { depositBalance?: string; mainBalance: string; bonusBalance: string }) => {
@@ -104,13 +100,8 @@ export default function SlotSelectionPage() {
     }
   }, [gamePhase, navigate])
 
-  // ── Fetch jackpot + stake ─────────────────────────────────────────────────
+  // ── Fetch stake ────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch('/api/jackpot/status')
-      .then(r => r.json())
-      .then((data: { pool: number }) => setJackpotPool(Number(data.pool ?? 0).toFixed(2)))
-      .catch(() => {})
-
     fetch('/api/game/rooms')
       .then(r => r.json())
       .then((data: { room10?: { stakePerCard: number } | null }) => {
@@ -146,27 +137,9 @@ export default function SlotSelectionPage() {
     })
   }
 
-  const randomPick = (count: 1 | 2) => {
-    // Account for refunds from currently-selected cards before checking affordability
-    const balanceAfterRefund = stakePerCard > 0
-      ? totalBalanceNum + selectedSlotsRef.current.length * stakePerCard
-      : totalBalanceNum
-    if (stakePerCard > 0 && balanceAfterRefund < count * stakePerCard) { setShowNoBalance(true); return }
-    const available = Array.from({ length: 500 }, (_, i) => i + 1).filter(n => !takenCards.has(n) && !selectedSlotsRef.current.includes(n))
-    const picked = available.sort(() => Math.random() - 0.5).slice(0, count)
-    // Deselect old, select new on server
-    selectedSlotsRef.current.forEach(n => socketRef.current?.emit('deselect_card', n))
-    picked.forEach(n => socketRef.current?.emit('select_card', n))
-    setSelectedSlots(picked)
-  }
-
   const formatTime = (s: number) => `00:${String(Math.max(0, s)).padStart(2, '0')}`
 
   const numbers = Array.from({ length: 500 }, (_, i) => i + 1)
-
-  const displayName = player
-    ? (player.username ? `@${player.username}` : player.firstName)
-    : '...'
 
   const totalBalance = (player || livePlayBalance !== null) ? totalBalanceNum.toFixed(2) : '—'
 
@@ -174,7 +147,7 @@ export default function SlotSelectionPage() {
   const waitingForNextRound = gamePhase === 'playing' && selectedSlots.length === 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'radial-gradient(ellipse at 50% 30%, #06452a 0%, #031b14 70%)', position: 'relative' }}>
+    <div className="selection-page" style={{ display: 'flex', flexDirection: 'column', height: '100dvh', position: 'relative' }}>
 
       {/* Insufficient Balance Modal */}
       {showNoBalance && (
@@ -185,7 +158,7 @@ export default function SlotSelectionPage() {
           padding: '0 24px',
         }}>
           <div style={{
-            background: 'linear-gradient(145deg, #05251a, #2d1212)',
+            background: 'linear-gradient(145deg, #1a170f, #2d160d)',
             border: '1.5px solid #b8860b',
             borderRadius: 20,
             padding: '32px 24px 24px',
@@ -196,7 +169,7 @@ export default function SlotSelectionPage() {
           }}>
             <div style={{
               width: 64, height: 64, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #00ff8c, #00c96b)',
+              background: 'linear-gradient(135deg, #ffb800, #f04400)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 20px',
               fontSize: 28,
@@ -221,7 +194,7 @@ export default function SlotSelectionPage() {
               style={{
                 width: '100%', padding: '13px 0',
                 borderRadius: 50, border: 'none', cursor: 'pointer',
-                background: 'linear-gradient(to right, #00ff8c, #b7ff00)',
+                background: 'linear-gradient(to right, #ffb800, #ff8300)',
                 fontSize: 15, fontWeight: 800, color: '#fff',
                 letterSpacing: '0.08em',
               }}
@@ -250,71 +223,25 @@ export default function SlotSelectionPage() {
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ background: '#05251a', borderBottom: '1px solid #08734a', padding: '10px 14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          {/* Back button + User info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {gamePhase === 'waiting' && (
-              <button
-                onClick={() => navigate('/')}
-                style={{
-                  background: 'none', border: '1.5px solid #08734a', borderRadius: 8,
-                  color: '#aaa', cursor: 'pointer', padding: '5px 8px',
-                  fontSize: 15, lineHeight: 1, flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-                title="ወደ ሎቢ ተመ��ስ"
-              >
-                ←
-              </button>
-            )}
-            <div style={{
-              width: 36, height: 36, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #00ff8c, #b7ff00)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, fontWeight: 700, color: '#fff', flexShrink: 0,
-              border: '2px solid #d4a017'
-            }}>
-              🪙
-            </div>
-            <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#D4A017', letterSpacing: '0.04em' }}>{displayName}</div>
-              <div style={{ fontSize: 10, color: '#999', letterSpacing: '0.02em' }}>MELBIT BINGO</div>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: 'flex', gap: 6 }}>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>
-                {gamePhase === 'playing' ? 'NEXT ROUND' : 'CLOSES IN'}
-              </span>
-              <span style={{
-                fontSize: 13, fontWeight: 700, fontFamily: 'monospace',
-                color: gamePhase === 'playing' ? '#888' : serverCountdown <= 5 ? '#ff4444' : '#39ff88',
-              }}>
-                {gamePhase === 'playing' ? '—' : formatTime(serverCountdown)}
-              </span>
-            </div>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>🎴 CARDS</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{totalCards}</span>
-            </div>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>🏆 ደራሽ</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#D4A017' }}>{netPrizePool.toFixed(0)} ETB</span>
-            </div>
-            <div className="stat-chip">
-              <span style={{ fontSize: 9, color: '#999', letterSpacing: '0.05em', fontWeight: 600 }}>💰 ETB</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#D4A017' }}>{totalBalance}</span>
-            </div>
-          </div>
+      <header className="selection-header">
+        <div className="selection-titlebar">
+          <button className="selection-back" onClick={() => navigate('/')} aria-label="Back to lobby">←</button>
+          <h1>Gladiators Bingo</h1>
+          <span className={`connection-dot${connected ? ' connected' : ''}`} />
+          <button className="selection-menu" aria-label="More options">⋮</button>
         </div>
-      </div>
+        <div className="selection-stats">
+          <StatChip label="Players" value={String(playerCount)} />
+          <StatChip label="Stake" value={`${stakePerCard} ETB`} />
+          <StatChip label="Wallet" value={`${totalBalance} ETB`} />
+          <StatChip label="Timer" value={gamePhase === 'playing' ? '—' : formatTime(serverCountdown)} accent={serverCountdown <= 5 && gamePhase === 'waiting'} />
+        </div>
+      </header>
+
+      <div className="selection-win-rule">THE GAME IS WON WITH TWO LINES!</div>
 
       {/* Scrollable grid only */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 12px 8px' }}>
+      <div className="selection-grid-scroll" style={{ flex: 1, overflowY: 'auto', padding: '12px 12px 8px' }}>
 
         {/* Grand Slots label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
@@ -335,140 +262,95 @@ export default function SlotSelectionPage() {
             const isTaken = takenCards.has(n) && !selectedSlots.includes(n)
             const isSelected = selectedSlots.includes(n)
             return (
-              <div
+              <button
+                type="button"
                 key={n}
-                className={`slot-cell${isTaken ? ' highlighted' : ''}${isSelected ? ' highlighted' : ''}`}
+                className={`slot-cell${isSelected ? ' selected' : ''}${isTaken ? ' taken' : ''}`}
+                disabled={isTaken}
+                aria-pressed={isSelected}
                 onClick={() => toggleSlot(n)}
                 style={{
-                  ...(isSelected ? { background: '#06452a', boxShadow: '0 0 8px rgba(255,140,0,0.5)' } : {}),
-                  ...(isTaken ? { cursor: 'not-allowed', opacity: 0.5 } : {}),
+                  ...(isTaken ? { cursor: 'not-allowed', opacity: 0.35 } : {}),
                 }}
               >
                 {n}
-              </div>
+              </button>
             )
           })}
         </div>
       </div>
 
-      {/* MY CARTELAS — fixed, never scrolls */}
-      <div style={{
-        flexShrink: 0,
-        background: '#031b14',
-        borderTop: '1px solid #3a1212',
-        padding: '10px 12px 0',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      {/* Selected cartelas */}
+      {selectedSlots.length > 0 && (
+        <div style={{
+          flexShrink: 0,
+          background: '#090a08',
+          borderTop: '1px solid #3a2410',
+          padding: '10px 12px 0',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
             <span style={{ fontSize: 15 }}>🎴</span>
             <span className="font-condensed" style={{ fontSize: 14, fontWeight: 700, color: '#D4A017', letterSpacing: '0.06em' }}>
               MY CARTELAS ({selectedSlots.length}/2)
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
-            <span style={{ fontSize: 9, fontWeight: 700, color: '#D4A017', letterSpacing: '0.08em' }}>🏆 JACKPOT (ETB)</span>
-            <div style={{
-              background: '#05251a', border: '1px solid #08734a',
-              borderRadius: 8, padding: '3px 10px',
-              fontSize: 11, fontWeight: 700, color: '#fff'
-            }}>
-              {jackpotPool} ETB
-            </div>
-          </div>
-        </div>
 
-        {/* Two cartela slot previews */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-          {[0, 1].map(i => {
-            const cardNum = selectedSlots[i]
-            const card = cardNum ? CARTELAS[cardNum - 1] : null
-            const COLS = ['B','I','N','G','O']
-            return (
-            <div
-              key={i}
-              className="cartela-placeholder"
-              style={{ padding: card ? '8px 6px' : '18px 10px', minHeight: 100 }}
-              onClick={() => { if (!card) randomPick(1) }}
-            >
-              {card ? (
-                <div style={{ width: '100%' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <span style={{ fontSize: 9, fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>SLOT #{i+1}</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: '#D4A017' }}>#{cardNum}</span>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2, marginBottom: 2 }}>
-                    {COLS.map(c => (
-                      <div key={c} style={{
-                        textAlign: 'center', fontSize: 9, fontWeight: 800,
-                        color: '#D4A017', letterSpacing: '0.04em', lineHeight: 1,
-                      }}>{c}</div>
-                    ))}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2 }}>
-                    {card.map((row, r) =>
-                      row.map((num, c) => (
-                        <div key={`${r}-${c}`} style={{
-                          aspectRatio: '1',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          borderRadius: 3,
-                          background: num === 0 ? 'linear-gradient(135deg,#00ff8c,#b7ff00)' : '#05251a',
-                          border: num === 0 ? 'none' : '1px solid #3a1212',
-                          fontSize: num === 0 ? 10 : 8,
-                          fontWeight: 700,
-                          color: num === 0 ? '#fff' : '#ccc',
-                          lineHeight: 1,
-                        }}>
-                          {num === 0 ? '★' : num}
-                        </div>
-                      ))
-                    )}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: selectedSlots.length === 1 ? '1fr' : 'repeat(2, minmax(0, 1fr))',
+            justifyItems: 'center',
+            gap: 8,
+            marginBottom: 6,
+          }}>
+            {selectedSlots.map((cardNum, i) => {
+              const card = CARTELAS[cardNum - 1]
+              const COLS = ['B','I','N','G','O']
+              return (
+                <div key={cardNum} className="cartela-placeholder" style={{ width: '100%', maxWidth: 75, padding: '6px 5px', minHeight: 0 }}>
+                  <div style={{ width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, color: '#888', letterSpacing: '0.05em' }}>SLOT #{i + 1}</span>
+                      <span style={{ fontSize: 11, fontWeight: 800, color: '#D4A017' }}>#{cardNum}</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2, marginBottom: 2 }}>
+                      {COLS.map(c => (
+                        <div key={c} style={{
+                          textAlign: 'center', fontSize: 9, fontWeight: 800,
+                          color: '#D4A017', letterSpacing: '0.04em', lineHeight: 1,
+                        }}>{c}</div>
+                      ))}
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 2 }}>
+                      {card.map((row, r) =>
+                        row.map((num, c) => (
+                          <div key={`${r}-${c}`} style={{
+                            aspectRatio: '1',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            borderRadius: 3,
+                            background: num === 0 ? 'linear-gradient(135deg,#ffd43b,#ff9f00)' : '#15140f',
+                            border: num === 0 ? 'none' : '1px solid #4b2b12',
+                            fontSize: num === 0 ? 10 : 8,
+                            fontWeight: 700,
+                            color: num === 0 ? '#fff' : '#ccc',
+                            lineHeight: 1,
+                          }}>
+                            {num === 0 ? '★' : num}
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <>
-                  <div style={{
-                    width: 34, height: 34, borderRadius: '50%',
-                    border: '1.5px dashed #08734a',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 20, color: '#08734a'
-                  }}>+</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#888', letterSpacing: '0.04em' }}>SLOT #{i + 1} EMPTY</div>
-                  <div style={{ fontSize: 9, color: '#555', textAlign: 'center', letterSpacing: '0.03em' }}>TAP GRID (1-500) OR RANDOM PICK</div>
-                </>
-              )}
-            </div>
-          )})}
+              )
+            })}
+          </div>
+          <div style={{ paddingBottom: 20 }} />
         </div>
-
-        {/* Buttons */}
-        <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-          <button
-            onClick={() => randomPick(1)}
-            style={{
-              flex: 1, padding: '11px 0',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              border: 'none', cursor: 'pointer', borderRadius: 50,
-              background: 'linear-gradient(to right, #7c3aed, #a855f7)',
-            }}
-          >
-            <span style={{ fontSize: 13 }}>🎲</span>
-            <span className="font-condensed" style={{ letterSpacing: '0.08em', fontSize: 15, fontWeight: 700, color: '#fff' }}>RANDOM PICK 1</span>
-          </button>
-          <button
-            onClick={() => randomPick(2)}
-            style={{
-              flex: 1, padding: '11px 0',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              border: 'none', cursor: 'pointer', borderRadius: 50,
-              background: 'linear-gradient(to right, #00ff8c, #b7ff00)',
-            }}
-          >
-            <span style={{ fontSize: 13 }}>🎲</span>
-            <span className="font-condensed" style={{ letterSpacing: '0.08em', fontSize: 15, fontWeight: 700, color: '#fff' }}>RANDOM PICK 2</span>
-          </button>
-        </div>
-        <div style={{ paddingBottom: 20 }} />
-      </div>
+      )}
     </div>
   )
+}
+
+function StatChip({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
+  return <div className="game-stat-chip"><span>{label}</span><strong className={accent ? 'accent' : ''}>{value}</strong></div>
 }

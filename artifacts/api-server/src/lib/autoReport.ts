@@ -43,7 +43,7 @@ export async function generateReport(): Promise<string> {
   });
 
   return (
-    `📊 <b>መልካም BINGO — ሪፖርት</b>\n` +
+    `📊 <b>Gladiators Bingo — ሪፖርት</b>\n` +
     `📅 ${dateStr}\n\n` +
     `💰 <b>ዲፖዚቶች</b>\n` +
     `  • ጠቅላላ: <b>${totalDeposited.toFixed(0)} ብር</b> (${approvedDeposits.length})\n` +
